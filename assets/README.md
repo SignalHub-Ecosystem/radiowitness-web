@@ -5,7 +5,7 @@ Immutable, peer-to-peer archiving and distribution of police radio broadcasts. A
 Install [node & npm](https://nodejs.org/en/download/) then [rustc & cargo](https://www.rust-lang.org/en-US/install.html) as well. 
 
 ## Downloading
-This software distrobution is itself a Dat Archive, you can get a copy of it by opening [this url](dat://e7d42a711b59fe11ff0779a96e027786d7b1ea653ea8cc591f469e4156ebdc7e) in [Beaker Browser](https://beakerbrowser.com), or from the command line:
+This software distrobution is itself a Dat Archive, you can get a copy of it by opening [this link](dat://e7d42a711b59fe11ff0779a96e027786d7b1ea653ea8cc591f469e4156ebdc7e) in [Beaker Browser](https://beakerbrowser.com), or from the command line:
 ```
 $ npm install -g dat
 $ dat clone dat://e7d42a711b59fe11ff0779a96e027786d7b1ea653ea8cc591f469e4156ebdc7e ./radiowitness
@@ -39,7 +39,7 @@ $ ./bin/radiowitness synth dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c953
 > synth ready.
 $
 $ npm install -g hypercore-pipe
-$ hypercore-pipe dat://826e198be68f5cb5950f29fb25f6247389c0cf6de96a65baee950d0ca4a1314c --timeout 60000 --live --tail | \
+$ hypercore-pipe dat://bceaaedf41a894a0048a6e52e0a6806a1f23e7fe30d1f582cabd0c23ed466304 --timeout 60000 --live --tail | \
     play -t raw -b 16 -e signed -r 8k -c 1 -
 ```
 
