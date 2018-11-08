@@ -1,6 +1,6 @@
 var html = require('choo/html')
 
-var TITLE = 'tmp - route not found'
+var TITLE = 'radiowitness - route not found'
 
 module.exports = view
 

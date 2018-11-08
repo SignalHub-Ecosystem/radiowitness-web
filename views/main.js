@@ -1,6 +1,6 @@
 var html = require('choo/html')
 
-var TITLE = 'tmp - main'
+var TITLE = 'radiowitness - main'
 
 module.exports = view
 

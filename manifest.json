@@ -1,6 +1,6 @@
 {
-  "name": "tmp",
-  "short_name": "tmp",
+  "name": "radiowitness",
+  "short_name": "radiowitness",
   "description": "radiowitness p2p demo.",
   "start_url": "/",
   "display": "standalone",
