@@ -1,10 +1,10 @@
 # RadioWitness
 Immutable, peer-to-peer archiving and distribution of police radio broadcasts. Authors use [Dat archives](https://datproject.org/) to record local police radio. Publishers seed Dat archives from authors and then re-distribute them to a larger audiance. Other rolse arise, too, such as Editors who produce their own archives while still referencing the original radio archive and author cryptographically.
 
-## dependencies
+## Dependencies
 Install [node & npm](https://nodejs.org/en/download/) then [rustc & cargo](https://www.rust-lang.org/en-US/install.html) as well. 
 
-## downloading
+## Downloading
 This software distrobution is itself a Dat Archive, you can get a copy of it by opening [this url](dat://e7d42a711b59fe11ff0779a96e027786d7b1ea653ea8cc591f469e4156ebdc7e) in [Beaker Browser](https://beakerbrowser.com), or from the command line:
 ```
 $ npm install -g dat
@@ -12,7 +12,7 @@ $ dat clone dat://e7d42a711b59fe11ff0779a96e027786d7b1ea653ea8cc591f469e4156ebdc
 $ cd ./radiowitness
 ```
 
-## authoring & publishing
+## Authoring & Publishing
 ```
 $ chmod +x ./bin/radiowitness
 $ ./bin/radiowitness setup
@@ -31,7 +31,7 @@ $ ./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs
     ./bin/radiowitness publish dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447 > /tmp/dat.proto
 ```
 
-## audio synthesis
+## Audio Synthesis
 ```
 $ ./bin/radiowitness synth dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
 > synth input  -> dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
@@ -43,16 +43,16 @@ $ hypercore-pipe dat://826e198be68f5cb5950f29fb25f6247389c0cf6de96a65baee950d0ca
     play -t raw -b 16 -e signed -r 8k -c 1 -
 ```
 
-## update
+## Update
 ```
 $ dat sync
 ```
 
-## development
+## Development
 Generate root `.datignore` file by concatenating all `.gitignore` files found in subdirectories:
 ```
 $ ./bin/radiowitness ignore
 ```
 
-## license
+## License
 License Zero Reciprocal Public License 2.0.1
