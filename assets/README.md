@@ -12,11 +12,10 @@ $ dat clone dat://e7d42a711b59fe11ff0779a96e027786d7b1ea653ea8cc591f469e4156ebdc
 $ cd ./radiowitness
 ```
 
-## Authoring & Publishing
+## what we want
 ```
 $ chmod +x ./bin/radiowitness
-$ ./bin/radiowitness setup
-$ ./bin/radiowitness build
+$ ./bin/radiowitness install author
 $
 $ echo "851162500,851287500,851137500" | ./bin/radiowitness search --rtlargs="-g 26"
 > searching 851162500Hz...
@@ -26,13 +25,13 @@ $
 $ ./bin/radiowitness create --wacn 781833 --sysid 318 --rfssid 1 --siteid 1
 > dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
 $
-$ mkfifo /tmp/dat.proto
-$ ./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs="-g 26" < /tmp/dat.proto | \
-    ./bin/radiowitness publish dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447 > /tmp/dat.proto
-```
-
-## Audio Synthesis
-```
+$ ./bin/radiowitness install publisher
+$ mkfifo /tmp/replication
+$
+$ ./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs="-g 26" < /tmp/replication | \
+    ./bin/radiowitness publish dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447 > /tmp/replication
+$
+$ ./bin/radiowitness install synth
 $ ./bin/radiowitness synth dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
 > synth input  -> dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
 > synth output -> dat://bceaaedf41a894a0048a6e52e0a6806a1f23e7fe30d1f582cabd0c23ed466304
