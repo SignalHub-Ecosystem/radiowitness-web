@@ -1,5 +1,5 @@
 # RadioWitness
-Immutable, peer-to-peer archiving and distribution of police radio broadcasts. Authors use [Dat archives](https://datproject.org/) to record local police radio. Publishers seed Dat archives from authors and then re-distribute them to a larger audiance. Other rolse arise, too, such as Editors who produce their own archives while still referencing the original radio archive and author cryptographically.
+Immutable, peer-to-peer archiving and distribution of police radio broadcasts. Authors use [Dat archives](https://datproject.org/) to record local police radio. Publishers seed Dat archives from authors and then re-distribute them to larger audiances. Other rolse arise, too, such as Editors who produce their own archives while still referencing the original radio archive and author cryptographically.
 
 ## Dependencies
 Install [node & npm](https://nodejs.org/en/download/) then [rustc & cargo](https://www.rust-lang.org/en-US/install.html) as well. 
@@ -12,7 +12,7 @@ $ dat clone dat://e7d42a711b59fe11ff0779a96e027786d7b1ea653ea8cc591f469e4156ebdc
 $ cd ./radiowitness
 ```
 
-## what we want
+## Authoring & Publishing
 ```
 $ chmod +x ./bin/radiowitness
 $ ./bin/radiowitness install author
@@ -30,7 +30,10 @@ $ mkfifo /tmp/replication
 $
 $ ./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs="-g 26" < /tmp/replication | \
     ./bin/radiowitness publish dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447 > /tmp/replication
-$
+```
+
+## Audio Synthesis
+```
 $ ./bin/radiowitness install synth
 $ ./bin/radiowitness synth dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
 > synth input  -> dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
@@ -38,7 +41,7 @@ $ ./bin/radiowitness synth dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c953
 > synth ready.
 $
 $ npm install -g hypercore-pipe
-$ hypercore-pipe dat://bceaaedf41a894a0048a6e52e0a6806a1f23e7fe30d1f582cabd0c23ed466304 --timeout 60000 --live --tail | \
+$ hypercore-pipe dat://bceaaedf41a894a0048a6e52e0a6806a1f23e7fe30d1f582cabd0c23ed466304 --timeout 60000 --live --rtail | \
     play -t raw -b 16 -e signed -r 8k -c 1 -
 ```
 
