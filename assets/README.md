@@ -22,7 +22,7 @@ $ echo "851162500,851287500,851137500" | ./bin/radiowitness search --rtlargs="-g
 > searching 851287500Hz...
 > channel found at 851287500Hz
 $
-$ ./bin/radiowitness create --wacn 781833 --sysid 318 --rfssid 1 --siteid 1
+$ ./bin/radiowitness create --lat "30.245016" --lon "-97.788914" --wacn 781833 --sysid 318 --rfssid 1 --siteid 1
 > dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
 $
 $ ./bin/radiowitness install publisher
@@ -38,10 +38,19 @@ $ ./bin/radiowitness install synth
 $ ./bin/radiowitness synth dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
 > synth input  -> dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
 > synth output -> dat://acae2beef9301a805d64a3996d3e6202b729153ff2071e449fd18590f83ed77f
-> synth ready.
+> synth ready, restarting from 300.
 $
 $ ./bin/radiowitness play dat://acae2beef9301a805d64a3996d3e6202b729153ff2071e449fd18590f83ed77f | \
     play -t raw -b 16 -e signed -r 8k -c 1 -
+```
+
+## Audio Indexing
+```
+$ ./bin/radiowitness install indexing
+$ ./bin/radiowitness indexing dat://acae2beef9301a805d64a3996d3e6202b729153ff2071e449fd18590f83ed77f
+> index input  -> dat://acae2beef9301a805d64a3996d3e6202b729153ff2071e449fd18590f83ed77f
+> index output -> dat://a38b341c394585b4b2852216ca1bfb162d6dbc44fb9007c0748aaf06630594d3
+> index ready, restarting from 120.
 ```
 
 ## Update
