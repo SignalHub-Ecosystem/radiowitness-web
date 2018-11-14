@@ -59,9 +59,9 @@ $ dat sync
 ```
 
 ## Development
-Generate root `.datignore` file by concatenating all `.gitignore` files found in subdirectories:
+Rebuild `web/` and generate root `.datignore` file by concatenating all `.gitignore` files found in subdirectories:
 ```
-$ ./bin/radiowitness ignore
+$ ./bin/radiowitness devstuff
 ```
 
 ## License
