@@ -37,11 +37,10 @@ $ ./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs
 $ ./bin/radiowitness install synth
 $ ./bin/radiowitness synth dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
 > synth input  -> dat://058fdc74a1c94476b1ea3cf186f98ff6c1575dac007c9530b8c986dda86b9447
-> synth output -> dat://bceaaedf41a894a0048a6e52e0a6806a1f23e7fe30d1f582cabd0c23ed466304
+> synth output -> dat://acae2beef9301a805d64a3996d3e6202b729153ff2071e449fd18590f83ed77f
 > synth ready.
 $
-$ npm install -g hypercore-pipe
-$ hypercore-pipe dat://bceaaedf41a894a0048a6e52e0a6806a1f23e7fe30d1f582cabd0c23ed466304 --timeout 60000 --live --rtail | \
+$ ./bin/radiowitness play dat://acae2beef9301a805d64a3996d3e6202b729153ff2071e449fd18590f83ed77f | \
     play -t raw -b 16 -e signed -r 8k -c 1 -
 ```
 
