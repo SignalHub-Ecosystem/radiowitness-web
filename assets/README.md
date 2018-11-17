@@ -54,7 +54,7 @@ $ ./bin/radiowitness indexing dat://8a27beb910315fca4024452f7e566b6be07f65be59ec
 ```
 
 ## Updates
-This software distribution can be updated like any other Dat Archive by running the commands `dat sync` or `dat pull`. However, it is recommended that you use the `bin/radiowitness` bash script to check for updates. In addition to updating the Dat Archive the bash script will alert you to relevant release notes as long as someone wrote them ;).
+This software distribution can be updated like any other Dat Archive by running the commands `dat sync` or `dat pull`. However, it is recommended that you use the `bin/radiowitness` bash script to check for updates. In addition to updating, the bash script will alert you to relevant release notes as long as someone wrote them ;).
 ```
 $ ./bin/radiowitness update
 ```
