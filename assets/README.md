@@ -1,14 +1,14 @@
 # RadioWitness
-Immutable, peer-to-peer archiving and distribution of police radio broadcasts. Authors use [Dat Archives](https://datproject.org/) to record local police radio. Publishers seed archives from authors and then re-distribute them to larger audiances. Other rolse arise, too, such as Editors who produce their own archives while still referencing the original radio archive and author cryptographically.
+Immutable, peer-to-peer archiving and distribution of police radio calls. Authors use [Software-Defined Radios](https://sdr.osmocom.org/trac/wiki/rtl-sdr) and [Dat Archives](https://datproject.org/) to record local police radio. Publishers seed archives from Authors and then re-distribute them to larger audiances. Other rolse arise too, such as Studios who synthesize *raw* radio data archives into archives of audible speech, and Indexers who aggregate metadata on individual radio calls. Stop by [#radiowitness on freenode](https://webchat.freenode.net/) and say hi.
 
 ## Dependencies
 Install [node & npm](https://nodejs.org/en/download/) then [rustc & cargo](https://www.rust-lang.org/en-US/install.html) as well. 
 
 ## Downloading
-This software distribution is itself a Dat Archive, you can get a copy of it by opening [this link](dat://e7d42a711b59fe11ff0779a96e027786d7b1ea653ea8cc591f469e4156ebdc7e) in [Beaker Browser](https://beakerbrowser.com), or from the command line:
+This software distribution is itself a Dat Archive, you can get a copy of it by opening [this link](dat://cda26788102ec1e166b72f2ed685f4dd1480c59189c03f23c253b822200fc152) in [Beaker Browser](https://beakerbrowser.com), or from the command line:
 ```
 $ npm install -g dat
-$ dat clone dat://e7d42a711b59fe11ff0779a96e027786d7b1ea653ea8cc591f469e4156ebdc7e ./radiowitness
+$ dat clone dat://cda26788102ec1e166b72f2ed685f4dd1480c59189c03f23c253b822200fc152 ./radiowitness
 $ cd ./radiowitness
 $ chmod +x ./bin/radiowitness
 ```
@@ -23,33 +23,33 @@ $ echo "851162500,851287500,851137500" | ./bin/radiowitness search --rtlargs="-g
 > channel found at 851287500Hz
 $
 $ ./bin/radiowitness author create --lat "30.245016" --lon="-97.788914" --wacn 781833 --sysid 318 --rfssid 1 --siteid 1
-> dat://d5a552b19d894844aa18be0c15d6b934e298e9452a9bc4f5d96273e8c1430824
+> dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea
 $
 $ ./bin/radiowitness publisher install
 $ mkfifo /tmp/replication
 $
 $ ./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs="-g 26" < /tmp/replication | \
-    ./bin/radiowitness publisher dat://d5a552b19d894844aa18be0c15d6b934e298e9452a9bc4f5d96273e8c1430824 > /tmp/replication
+    ./bin/radiowitness publisher dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea > /tmp/replication
 ```
 
 ## Audio Synthesis
 ```
-$ ./bin/radiowitness synth install
-$ ./bin/radiowitness synth dat://d5a552b19d894844aa18be0c15d6b934e298e9452a9bc4f5d96273e8c1430824
-> synth input  -> dat://d5a552b19d894844aa18be0c15d6b934e298e9452a9bc4f5d96273e8c1430824
-> synth output -> dat://8a27beb910315fca4024452f7e566b6be07f65be59ec6b03867bdbc1dc1bd1d0
-> synth ready, restarting from 300.
+$ ./bin/radiowitness studio install
+$ ./bin/radiowitness studio dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea
+> studio input  -> dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea
+> studio output -> dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609b6c0571cce766f49
+> studio ready, restarting from 300.
 $
-$ ./bin/radiowitness play dat://8a27beb910315fca4024452f7e566b6be07f65be59ec6b03867bdbc1dc1bd1d0 | \
+$ ./bin/radiowitness play dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609b6c0571cce766f49 | \
     play -t raw -b 16 -e signed -r 8k -c 1 -
 ```
 
 ## Audio Indexing
 ```
 $ ./bin/radiowitness indexing install
-$ ./bin/radiowitness indexing dat://8a27beb910315fca4024452f7e566b6be07f65be59ec6b03867bdbc1dc1bd1d0
-> index input  -> dat://8a27beb910315fca4024452f7e566b6be07f65be59ec6b03867bdbc1dc1bd1d0
-> index output -> dat://8f5aa4338db3e276e00fefa552daede159ff3b322c0bdbff1174cb27ab7cd9bd
+$ ./bin/radiowitness indexing dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609b6c0571cce766f49
+> index input  -> dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609b6c0571cce766f49
+> index output -> dat://4fe9db8829fa299d9133f18b7ff5ada855b132075a7cdf1369ff5c1c59fa22ce
 > index ready, restarting from 120.
 ```
 
@@ -57,6 +57,71 @@ $ ./bin/radiowitness indexing dat://8a27beb910315fca4024452f7e566b6be07f65be59ec
 This software distribution can be updated like any other Dat Archive by running the commands `dat sync` or `dat pull`. However, it is recommended that you use the `bin/radiowitness` bash script to check for updates. In addition to updating, the bash script will alert you to relevant release notes as long as someone wrote them ;).
 ```
 $ ./bin/radiowitness update
+```
+
+## Standards & Conventions
+Different peers author different types of data and so we need to introduce a little structure. All peer types operate on [hypercores](https://github.com/mafintosh/hypercore) with the exception of *Indexer* who's output is a [hyperdb](https://github.com/mafintosh/hyperdb). Hypercores are an append-only log structure and we use record `0` within the log as a sort of header. HyperDB is a magic P2P key-value store and we put a sort-of-header at key `/rw-about`.
+
+### rw-author hypercore record `0`
+```
+{
+  "version" : 1,
+  "type" : "rw-author",
+  "tags" : {
+    "geo" : { "lat" : 4.20, "lon" : 6.66 },
+    "network" : { "wacn" : 1, "sysid" : 1, "rfssid" : 1, "siteid" : 1 }
+  }
+}
+```
+
+### rw-studio hypercore record `0`
+Notice how `links` is used to reference the input hypercore:
+```
+{
+  "version" : 1,
+  "type" : "rw-studio",
+  "links" : {
+    "author" : [{ "type" : "rw-author", "href" : "dat://abc123" }]
+  },
+  "tags" : {
+    "geo" : { "lat" : 4.20, "lon" : 6.66 },
+    "network" : { "wacn" : 1, "sysid" : 1, "rfssid" : 1, "siteid" : 1 }
+  }
+}
+```
+
+### rw-studio-index hyperdb key `/rw-about`
+Notice how `links` is used to reference both the original radio hypercore and the audio hypercore produced by a `rw-studio` peer:
+```
+{
+  "version" : 1,
+  "type" : "rw-studio-index",
+  "links" : {
+    "author" : [{ "type" : "rw-author", "href" : "dat://abc123" }]
+    "author" : [{ "type" : "rw-studio", "href" : "dat://def456" }]
+  },
+  "tags" : {
+    "geo" : { "lat" : 4.20, "lon" : 6.66 },
+    "network" : { "wacn" : 1, "sysid" : 1, "rfssid" : 1, "siteid" : 1 }
+  }
+}
+```
+
+### rw-publisher `dat.json`
+The idea here is to build upon the existing Beaker Browser [dat.json spec](https://beakerbrowser.com/docs/apis/manifest) as much as possible. In this way Publishers can use a [Dat Website](https://beakerbrowser.com/docs/how-beaker-works/peer-to-peer-websites) as the front page of their P2P presence while seeding their Author's archives in a structured, discoverable way.
+```
+{
+  "type" : ["website", "rw-publisher"],
+  "title" : "Radio Venceremos",
+  "description" : "we shall overcome",
+  "links" : {
+    "author" : [
+      { "type" : "rw-author", "href" : 'dat://abc123' },
+      { "type" : "rw-studio", "href" : 'dat://def456' },
+      { "type" : "rw-studio-index", "href" : 'dat://ghi789' }
+    ]
+  }
+}
 ```
 
 ## Development
