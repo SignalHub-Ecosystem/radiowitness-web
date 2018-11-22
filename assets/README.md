@@ -1,5 +1,5 @@
 # RadioWitness
-Immutable, peer-to-peer archiving and distribution of police radio calls. Authors use [Software-Defined Radios](https://sdr.osmocom.org/trac/wiki/rtl-sdr) and [Dat Archives](https://datproject.org/) to record local police radio. Publishers seed archives from Authors and then re-distribute them to larger audiances. Other rolse arise too, such as Studios who synthesize *raw* radio data archives into archives of audible speech, and Indexers who aggregate metadata on individual radio calls. Stop by [#radiowitness on freenode](https://webchat.freenode.net/) and say hi.
+Immutable, peer-to-peer archiving and distribution of police radio calls. Authors use [Software-Defined Radios](https://sdr.osmocom.org/trac/wiki/rtl-sdr) and [Dat Archives](https://datproject.org/) to record local police radio. Publishers seed archives from Authors and then re-distribute them to larger audiances. Other rolse arise too, such as Studios who synthesize radio archives into archives of audible speech, and Indexers who aggregate metadata on individual radio calls. Stop by [#radiowitness on freenode](https://webchat.freenode.net/) and say hi.
 
 ## Dependencies
 Install [node & npm](https://nodejs.org/en/download/) then [rustc & cargo](https://www.rust-lang.org/en-US/install.html) as well. 
@@ -14,6 +14,7 @@ $ chmod +x ./bin/radiowitness
 ```
 
 ## Authoring & Publishing
+The [Dat Protocol](https://www.datprotocol.com/) is transport agnostic, meaning Dat peers can communicate over TCP, UDP, any duplex stream really. This flexibility allows Publishers to provide any number of peering strategies to their Authors. In practice a UDP socket on a well-routed VPS is a fine start, add [WireGuard VPN](https://www.wireguard.com/) and you'll be feeling like the king of Nynex. Both Author and Publisher peers will attempt to use `stdin&stdout` to replicate so you've just gotta pipe them together using your transport of choice, in this example a linux fifo:
 ```
 $ ./bin/radiowitness author install
 $
@@ -33,6 +34,7 @@ $ ./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs
 ```
 
 ## Audio Synthesis
+Police radio is unlike the radio you hear from a car or boombox because it travels through the airwaves in a compressed form, all this means is that we've got to do an extra step to get something audible out of it. This extra step is intentionally left behind by both Author and Publisher peers because the *raw* radio archive has importance in and of itself. The Studio peer reads a radio archive as input and produces an audio archive as output:
 ```
 $ ./bin/radiowitness studio install
 $ ./bin/radiowitness studio dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea
@@ -45,6 +47,7 @@ $ ./bin/radiowitness play dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609
 ```
 
 ## Audio Indexing
+The archives created by Studios are basically giant, ever-growing [.WAV audio files](https://en.wikipedia.org/wiki/WAV) with a handful of extra metadata thrown in. Studio archives are great for streaming live, but to really explore years worth of audio some search indexes are needed. Indexing reads an audio archive as input and produces a [hyperdb](https://github.com/mafintosh/hyperdb) as output with calls batched by hours-since-unix-epoch at keys with the form `/calls/{epoch-hour}/{callid}`:
 ```
 $ ./bin/radiowitness indexing install
 $ ./bin/radiowitness indexing dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609b6c0571cce766f49
@@ -125,7 +128,7 @@ The idea here is to build upon the existing Beaker Browser [dat.json spec](https
 ```
 
 ## Development
-Rebuild `web/` and generate root `.datignore` file by concatenating all `.gitignore` files found in subdirectories:
+Making this up as we go. Rebuild `web/` and generate root `.datignore` file by concatenating all `.gitignore` files found in subdirectories:
 ```
 $ ./bin/radiowitness devstuff
 ```
