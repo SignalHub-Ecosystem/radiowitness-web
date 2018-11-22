@@ -14,7 +14,7 @@ $ chmod +x ./bin/radiowitness
 ```
 
 ## Authoring & Publishing
-The [Dat Protocol](https://www.datprotocol.com/) is transport agnostic, meaning Dat peers can communicate over TCP, UDP, any duplex stream really. This flexibility allows Publishers to provide any number of peering strategies to their Authors. In practice a UDP socket on a well-routed VPS is a fine start, add [WireGuard VPN](https://www.wireguard.com/) and you'll be feeling like the king of Nynex. Both Author and Publisher peers will attempt to use `stdin&stdout` to replicate so you've just gotta pipe them together using your transport of choice, in this example a linux fifo:
+The [Dat Protocol](https://www.datprotocol.com/) is transport agnostic, meaning Dat peers can communicate over TCP, UDP, any duplex stream really. This flexibility allows Publishers to provide any number of peering strategies to their Authors. In practice a TCP socket on a well-routed VPS is a fine start, add [WireGuard VPN](https://www.wireguard.com/) and you'll be feeling like the king of Nynex. Both Author and Publisher peers will attempt to use `stdin&stdout` to replicate so you've just gotta pipe them together using your transport of choice, in this example a linux fifo:
 ```
 $ ./bin/radiowitness author install
 $
@@ -131,6 +131,21 @@ The idea here is to build upon the existing Beaker Browser [dat.json spec](https
 Making this up as we go. Rebuild `web/` and generate root `.datignore` file by concatenating all `.gitignore` files found in subdirectories:
 ```
 $ ./bin/radiowitness devstuff
+```
+
+## TCP Transport Example
+publisher:
+```
+$ while true; do time ncat -l -p 6666 -c \
+  "./bin/radiowitness publisher dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea"; \
+  sleep 5; done
+```
+
+author:
+```
+$ while true; do time ncat cool.pub.peer 6666 -c \
+  "./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs='-g 26'" 2>> /tmp/rw-author.log; \
+  sleep 5; done;
 ```
 
 ## License
