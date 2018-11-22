@@ -14,7 +14,7 @@ $ chmod +x ./bin/radiowitness
 ```
 
 ## Authoring & Publishing
-The [Dat Protocol](https://www.datprotocol.com/) is transport agnostic, meaning Dat peers can communicate over TCP, UDP, any duplex stream really. This flexibility allows Publishers to provide any number of peering strategies to their Authors. In practice a TCP socket on a well-routed VPS is a fine start, add [WireGuard VPN](https://www.wireguard.com/) and you'll be feeling like the king of Nynex. Both Author and Publisher peers will attempt to use `stdin&stdout` to replicate so you've just gotta pipe them together using your transport of choice, in this example a linux fifo:
+The [Dat Protocol](https://www.datprotocol.com/) is transport agnostic, meaning Dat peers can communicate over TCP, UDP, any duplex stream really. This flexibility allows Publishers to provide any number of peering strategies to their Authors. In practice a TCP socket on a well-routed VPS is a fine start, add [WireGuard VPN](https://www.wireguard.com/) and you'll be feeling like the su of Nynex. Both Author and Publisher peers replicate via `stdin&stdout` so you've just gotta pipe them together using your transport of choice, in this example a linux fifo:
 ```
 $ ./bin/radiowitness author install
 $
