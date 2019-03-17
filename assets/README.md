@@ -17,8 +17,7 @@ $ chmod +x ./bin/radiowitness
 The [Dat Protocol](https://www.datprotocol.com/) is transport agnostic, meaning Dat peers can communicate over TCP, UDP, any duplex stream really. This flexibility allows Publishers to provide any number of peering strategies to their Authors. In practice a TCP socket on a well-routed VPS is a fine start, add [WireGuard VPN](https://www.wireguard.com/) and you'll be feeling like the su of Nynex. Both Author and Publisher peers replicate via `stdin&stdout` so you've just gotta pipe them together using your transport of choice, in this example a linux fifo:
 ```
 $ ./bin/radiowitness author install
-$
-$ echo "851162500,851287500,851137500" | ./bin/radiowitness search --rtlargs="-g 26"
+$ echo "851162500,851287500,851137500" | ./bin/radiowitness search -d 0 -g 26
 > searching 851162500Hz...
 > searching 851287500Hz...
 > channel found at 851287500Hz
@@ -29,7 +28,7 @@ $
 $ ./bin/radiowitness publisher install
 $ mkfifo /tmp/replication
 $
-$ ./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs="-g 26" < /tmp/replication | \
+$ ./bin/radiowitness author --radios 3 --mux 2 -s 1200000 -g 26 -f 851287500 < /tmp/replication | \
     ./bin/radiowitness publisher dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea > /tmp/replication
 ```
 
@@ -144,8 +143,18 @@ $ while true; do time ncat -l -p 6666 -c \
 author:
 ```
 $ while true; do time ncat cool.pub.peer 6666 -c \
-  "./bin/radiowitness author --radios 3 --mux 2 -f 851287500 -s 1200000 --rtlargs='-g 26'" 2>> /tmp/rw-author.log; \
+  "./bin/radiowitness author --radios 3 --mux 2 -s 1200000 -g 26 -f 851287500" 2>> /tmp/rw-author.log; \
   sleep 5; done;
+```
+
+## Http Tuning
+```
+$ while true; do \
+    rm -rf /tmp/rw-*; echo 851287500 | \
+      node lib/js/rw-peer/index.js search --period 5000 -d 0 -g 26 | \
+        ./bin/radiowitness http -p 8080;
+    sleep 5; \
+  done;
 ```
 
 ## License
