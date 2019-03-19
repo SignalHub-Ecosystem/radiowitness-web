@@ -1,5 +1,5 @@
 # rw-web
-website, documentation, and web app.
+Publisher homepage and project documentation.
 
 ## Commands
 Command                | Description                                      |

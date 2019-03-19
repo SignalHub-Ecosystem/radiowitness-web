@@ -55,6 +55,17 @@ $ ./bin/radiowitness indexing dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d08
 > index ready, restarting from 120.
 ```
 
+## Website
+```
+$ mkdir -p archive.web
+$ ./bin/radiowitness web dat://author.key \
+    --studio dat://studio.key --index dat://index.key > archive.web/dat.json
+$ ln -s archive.web/dat.json web/dat.json
+$ npm run build --prefix web/
+$ cp -r web/dist/* archive.web/
+$ dat sync archive.web
+```
+
 ## Updates
 This software distribution can be updated like any other Dat Archive by running the commands `dat sync` or `dat pull`. However, it is recommended that you use the `bin/radiowitness` bash script to check for updates. In addition to updating, the bash script will alert you to relevant release notes as long as someone wrote them ;).
 ```
@@ -116,8 +127,10 @@ The idea here is to build upon the existing Beaker Browser [dat.json spec](https
   "type" : ["website", "rw-publisher"],
   "title" : "Radio Venceremos",
   "description" : "we shall overcome",
+  "web_root" : "/",
+  "fallback_page" : "/assets/404.html",
   "links" : {
-    "author" : [
+    "publisher" : [
       { "type" : "rw-author", "href" : 'dat://abc123' },
       { "type" : "rw-studio", "href" : 'dat://def456' },
       { "type" : "rw-studio-index", "href" : 'dat://ghi789' }
