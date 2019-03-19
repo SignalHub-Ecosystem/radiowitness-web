@@ -1,7 +1,8 @@
 const html = require('choo/html')
-const dat  = require('../dat.json')
+const Markdown = require('marli')
+const md = Markdown()
 
-const TITLE = 'RadioWitness'
+const TITLE = 'RadioWitness - doc'
 module.exports = view
 
 function view (state, emit) {
@@ -9,8 +10,6 @@ function view (state, emit) {
     emit(state.events.DOMTITLECHANGE, TITLE)
   }
 
-  return html`<body>
-    <h2>${dat.title}</h2>
-    <p>${dat.description}</p>
-  </body>`
+  let readme = md`${state.readme}`
+  return html`<body>${readme}</body>`
 }
