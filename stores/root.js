@@ -1,4 +1,7 @@
+const codec     = require('codecs')('json')
+const hyperkeys = require('dat-encoding')
 const hypercore = require('hypercore')
+const hyperdb   = require('hyperdb')
 const ram       = require('random-access-memory')
 const swarms    = require('@geut/discovery-swarm-webrtc')
 const signalhub = require('signalhub')
@@ -18,15 +21,16 @@ function store (state, emitter) {
     emitter.emit(state.events.RENDER)
   })
 
-  emitter.on('dat:ready', (core) => {
+  emitter.on('dat:ready', (db) => {
     console.log('readyyy')
-    state.core = core
+    state.db = db
 
-    let hub = signalhub('rw.peer', ['https://rhodey.org:9001'])
+    let channel = hyperkeys.encode(db.key)
+    let hub = signalhub(channel, ['https://rhodey.org:9001'])
     let swarm = swarms({
       stream : () => {
-        console.log('core.replicate()')
-        return core.replicate()
+        console.log('db.replicate()')
+        return db.replicate({ live : true })
       }
     })
 
@@ -35,9 +39,10 @@ function store (state, emitter) {
       console.log('!!! (conn, info) -> ', info)
     })
 
-    let opts = { tail : true, live : true, wait : true, timeout : 0 }
-    let read = core.createReadStream(opts)
-    read.on('data', (buf) => console.log('data -> ', buf.toString('utf8')))
+    let read = db.createReadStream('/calls/', {})
+    read.on('data', (buf) => {
+      console.log('data -> ', buf)
+    })
 
     emitter.emit(state.events.RENDER)
   })
@@ -47,11 +52,10 @@ function store (state, emitter) {
       .then((r) => r.text())
       .then((readme) => emitter.emit('doc:readme', readme))*/
 
-    let opts = { sparse : true }
-    let key = '86c025bccac90612a02f07190881cf23646d0efb29bf030c57e3ecc8e27508d3'
-    let core = hypercore((fname) => ram(), key, opts)
+    let key = '59ae6971597e9788bd6c50b1db3f2131ca5536753aeb0cf904ec9a4745574a09'
+    let db = hyperdb((fname) => ram(), key)
 
-    core.once('error', (err) => emitter.emit('error', err))
-    core.once('ready', () => emitter.emit('dat:ready', core))
+    db.once('error', (err) => emitter.emit('error', err))
+    db.once('ready', () => emitter.emit('dat:ready', db))
   })
 }
