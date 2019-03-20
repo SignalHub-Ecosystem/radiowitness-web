@@ -30,7 +30,8 @@ function store (state, emitter) {
       }
     })
 
-    swarm.join(hub)
+    let opts = { wrtc : /*require('wrtc')*/null, maxPeers : 16 }
+    swarm.join(hub/*, opts*/)
     swarm.on('connection', (conn, info) => {
       console.log('!!! (conn, info) -> ', conn, info)
     })
