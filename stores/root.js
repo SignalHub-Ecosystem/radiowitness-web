@@ -22,7 +22,7 @@ function store (state, emitter) {
     console.log('readyyy')
     state.core = core
 
-    let hub = signalhub('rw', ['https://rhodey.org:9001'])
+    let hub = signalhub('rw.peer', ['https://rhodey.org:9001'])
     let swarm = swarms({
       stream : () => {
         console.log('core.replicate()')
@@ -30,11 +30,14 @@ function store (state, emitter) {
       }
     })
 
-    let opts = { wrtc : /*require('wrtc')*/null, maxPeers : 16 }
-    swarm.join(hub/*, opts*/)
+    swarm.join(hub, { maxPeers : 4 })
     swarm.on('connection', (conn, info) => {
-      console.log('!!! (conn, info) -> ', conn, info)
+      console.log('!!! (conn, info) -> ', info)
     })
+
+    let opts = { tail : true, live : true, wait : true, timeout : 0 }
+    let read = core.createReadStream(opts)
+    read.on('data', (buf) => console.log('data -> ', buf.toString('utf8')))
 
     emitter.emit(state.events.RENDER)
   })
@@ -45,7 +48,7 @@ function store (state, emitter) {
       .then((readme) => emitter.emit('doc:readme', readme))*/
 
     let opts = { sparse : true }
-    let key = dat.links.publisher[0].href.split('dat://')[1]
+    let key = '86c025bccac90612a02f07190881cf23646d0efb29bf030c57e3ecc8e27508d3'
     let core = hypercore((fname) => ram(), key, opts)
 
     core.once('error', (err) => emitter.emit('error', err))

@@ -20,6 +20,7 @@
     "random-access-memory": "^3.0.0",
     "dat-encoding": "^5.0.1",
     "hypercore": "^6.25.0",
+    "wrtc": "^0.3.6",
     "@geut/discovery-swarm-webrtc": "^1.2.0",
     "signalhub": "^4.9.0",
     "discovery-swarm-web": "^1.0.2"
