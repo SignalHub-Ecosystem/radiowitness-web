@@ -16,7 +16,13 @@
     "choo-service-worker": "^2.4.0",
     "sheetify": "^7.3.3",
     "tachyons": "^4.11.1",
-    "marli": "^2.0.0"
+    "marli": "^2.0.0",
+    "random-access-memory": "^3.0.0",
+    "dat-encoding": "^5.0.1",
+    "hypercore": "^6.25.0",
+    "@geut/discovery-swarm-webrtc": "^1.2.0",
+    "signalhub": "^4.9.0",
+    "discovery-swarm-web": "^1.0.2"
   },
   "devDependencies": {
     "bankai": "^9.15.0",
