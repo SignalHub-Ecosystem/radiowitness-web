@@ -31,8 +31,8 @@ function store (state, emitter) {
     })
 
     swarm.join(hub)
-    swarm.on('connection', (peer) => {
-      console.log('!!! peer -> ', peer)
+    swarm.on('connection', (conn, info) => {
+      console.log('!!! (conn, info) -> ', conn, info)
     })
 
     emitter.emit(state.events.RENDER)
