@@ -22,12 +22,18 @@ function store (state, emitter) {
     console.log('readyyy')
     state.core = core
 
-    let hub = signalhub('app00', ['https://rhodey.org:9001'])
-    hub.subscribe('chan00').on('data', (msg) => {
-      console.log('message -> ', msg)
+    let hub = signalhub('rw', ['https://rhodey.org:9001'])
+    let swarm = swarms({
+      stream : () => {
+        console.log('core.replicate()')
+        return core.replicate()
+      }
     })
 
-    hub.broadcast('chan00', { hello : 'world' })
+    swarm.join(hub)
+    swarm.on('connection', (peer) => {
+      console.log('!!! peer -> ', peer)
+    })
 
     emitter.emit(state.events.RENDER)
   })
