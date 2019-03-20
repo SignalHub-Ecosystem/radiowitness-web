@@ -39,9 +39,11 @@ function store (state, emitter) {
       console.log('!!! (conn, info) -> ', info)
     })
 
-    let read = db.createReadStream('/calls/', {})
-    read.on('data', (buf) => {
-      console.log('data -> ', buf)
+    let hour = Math.floor(Date.now() / 1000.0 / 60 / 60)
+    let read = db.createReadStream(`/calls/${hour}/`, { gt : true })
+    read.on('data', (data) => {
+      let key = data[0].key
+      console.log('call -> ', key)
     })
 
     emitter.emit(state.events.RENDER)
