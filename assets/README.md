@@ -23,25 +23,25 @@ $ echo "851162500,851287500,851137500" | ./bin/radiowitness search -d 0 -g 26
 > channel found at 851287500Hz
 $
 $ ./bin/radiowitness author create --lat "30.245016" --lon="-97.788914" --wacn 781833 --sysid 318 --rfssid 1 --siteid 1
-> dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea
+> dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178
 $
 $ ./bin/radiowitness publisher install
 $ mkfifo /tmp/replication
 $
 $ ./bin/radiowitness author --radios 3 --mux 2 -s 1200000 -g 26 -f 851287500 < /tmp/replication | \
-    ./bin/radiowitness publisher dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea > /tmp/replication
+    ./bin/radiowitness publisher dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178 > /tmp/replication
 ```
 
 ## Audio Synthesis
 Police radio is unlike the radio you hear from a car or boombox because it travels through the airwaves in a compressed form, all this means is that we've got to do an extra step to get something audible out of it. This extra step is intentionally left behind by both Author and Publisher peers because the *raw* radio archive has importance in and of itself. The Studio peer reads a radio archive as input and produces an audio archive as output:
 ```
 $ ./bin/radiowitness studio install
-$ ./bin/radiowitness studio dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea
-> studio input  -> dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea
-> studio output -> dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609b6c0571cce766f49
+$ ./bin/radiowitness studio dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178
+> studio input  -> dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178
+> studio output -> dat://383c52590b298fe1556061aa6aa2dfde723da536016ffabfbec9072e21f3e67b
 > studio ready, restarting from 300.
 $
-$ ./bin/radiowitness play dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609b6c0571cce766f49 | \
+$ ./bin/radiowitness play dat://383c52590b298fe1556061aa6aa2dfde723da536016ffabfbec9072e21f3e67b | \
     play -t raw -b 16 -e signed -r 8k -c 1 -
 ```
 
@@ -49,9 +49,9 @@ $ ./bin/radiowitness play dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609
 The archives created by Studios are basically giant, ever-growing [.WAV audio files](https://en.wikipedia.org/wiki/WAV) with a handful of extra metadata thrown in. Studio archives are great for streaming live, but to really explore years worth of audio some search indexes are needed. Indexing reads an audio archive as input and produces a [hyperdb](https://github.com/mafintosh/hyperdb) as output with calls batched by hours-since-unix-epoch at keys with the form `/calls/{epoch-hour}/{callid}`:
 ```
 $ ./bin/radiowitness indexing install
-$ ./bin/radiowitness indexing dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609b6c0571cce766f49
-> index input  -> dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d084609b6c0571cce766f49
-> index output -> dat://4fe9db8829fa299d9133f18b7ff5ada855b132075a7cdf1369ff5c1c59fa22ce
+$ ./bin/radiowitness indexing dat://383c52590b298fe1556061aa6aa2dfde723da536016ffabfbec9072e21f3e67b
+> index input  -> dat://383c52590b298fe1556061aa6aa2dfde723da536016ffabfbec9072e21f3e67b
+> index output -> dat://c410d27f994732f52aaa4f0fdf16fcb67f9c11c61016acd26f0281f5b96ca879
 > index ready, restarting from 120.
 ```
 
@@ -60,7 +60,7 @@ $ ./bin/radiowitness indexing dat://3cd790e16b4f22464b4e3045a2c5c328631d5c124d08
 $ mkdir -p archive.web
 $ ./bin/radiowitness web dat://author.key \
     --studio dat://studio.key --index dat://index.key > archive.web/dat.json
-$ ln -s archive.web/dat.json web/dat.json
+$ ln -f archive.web/dat.json web/dat.json
 $ npm run build --prefix web/
 $ cp -r web/dist/* archive.web/
 $ dat sync archive.web
@@ -149,7 +149,7 @@ $ ./bin/radiowitness devstuff
 publisher:
 ```
 $ while true; do time ncat -l -p 6666 -c \
-  "./bin/radiowitness publisher dat://a776a2743a32a8706412d48693348259f08bea7e1ecf13a23491ded68c9419ea"; \
+  "./bin/radiowitness publisher dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178"; \
   sleep 5; done
 ```
 
