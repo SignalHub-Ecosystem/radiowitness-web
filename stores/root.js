@@ -40,17 +40,39 @@ function store (state, emitter) {
 
     let hour = Math.floor(Date.now() / 1000.0 / 60 / 60)
     let read = db.createReadStream(`/calls/${hour}/`, { gt : true })
-    read.on('data', (data) => {
+    /* read.on('data', (data) => {
       let key = data[0].key
       console.log('call -> ', key)
       // todo: pass into work stream
-    })
+    })*/
   })
+
 
   emitter.on('studio:ready', (studio) => {
     state.studio = studio
     replicate(studio)
-    // todo: consume work stream
+    studio.get(5492, (err, buf) => {
+      if (err) { return emitter.emit('error', err) }
+
+      let idx = 0
+      let floats = new Float32Array(buf.length / 2)
+
+      while (idx < (buf.length - 1)) {
+        floats[idx / 2] = (1.0 * buf.readInt16LE(idx)) / 0x7FFF
+        idx += 2
+      }
+
+      let ctx = new (window.AudioContext || window.webkitAudioContext)()
+      let buff = ctx.createBuffer(1, floats.length, 8000)
+      let src = ctx.createBufferSource()
+
+      buff.getChannelData(0).set(floats)
+      src.buffer = buff
+      src.connect(ctx.destination)
+      src.start(0)
+
+      console.log('!!! src.start() !!!')
+    })
   })
 
   emitter.on('DOMContentLoaded', () => {
@@ -58,13 +80,13 @@ function store (state, emitter) {
       .then((r) => r.text())
       .then((readme) => emitter.emit('doc:readme', readme))
 
-    let dkey = '59ae6971597e9788bd6c50b1db3f2131ca5536753aeb0cf904ec9a4745574a09'
+    let dkey = 'd54ab07c5daa1c51f4e39f5e35b67306821b8df9c8bdbc9b561b42b8d13eba49'
     let db = hyperdb((fname) => ram(), dkey)
 
     db.once('error', (err) => emitter.emit('error', err))
     db.once('ready', () => emitter.emit('db:ready', db))
 
-    let skey = 'd5b2b0f2bb6e0638884bd64a43a86fe13d7220594bb74ea566f96c7d60545df4'
+    let skey = 'e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968'
     let studio = hypercore((fname) => ram(), skey, { sparse : true })
 
     studio.once('error', (err) => emitter.emit('error', err))
