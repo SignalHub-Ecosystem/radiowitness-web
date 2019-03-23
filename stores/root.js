@@ -62,7 +62,7 @@ function store (state, emitter) {
         idx += 2
       }
 
-      let ctx = new (window.AudioContext || window.webkitAudioContext)()
+      let ctx = new AudioContext()
       let buff = ctx.createBuffer(1, floats.length, 8000)
       let src = ctx.createBufferSource()
 
