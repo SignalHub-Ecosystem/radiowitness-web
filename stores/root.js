@@ -7,9 +7,20 @@ const swarms    = require('@geut/discovery-swarm-webrtc')
 const signalhub = require('signalhub')
 const dat       = require('../dat.json')
 
-module.exports = store
 
-function replicate(archive) {
+function asFloats(buf) {
+  let idx = 0
+  let floats = new Float32Array(buf.length / 2)
+
+  while (idx < (buf.length - 1)) {
+    floats[idx / 2] = (1.0 * buf.readInt16LE(idx)) / 0x7FFF
+    idx += 2
+  }
+
+  return floats
+}
+
+function replicate(archive, cb) {
   let channel = hyperkeys.encode(archive.key)
   let hub = signalhub(channel, ['https://rhodey.org:9001'])
   let swarm = swarms({
@@ -19,6 +30,7 @@ function replicate(archive) {
   swarm.join(hub, { maxPeers : 4 })
   swarm.on('connection', (conn, info) => {
     console.log('!!! (conn, info) -> ', info)
+    if (cb) { cb(conn, info) }
   })
 }
 
@@ -38,40 +50,45 @@ function store (state, emitter) {
     state.db = db
     replicate(db)
 
+    /*
     let hour = Math.floor(Date.now() / 1000.0 / 60 / 60)
     let read = db.createReadStream(`/calls/${hour}/`, { gt : true })
-    /* read.on('data', (data) => {
+    read.on('data', (data) => {
       let key = data[0].key
       console.log('call -> ', key)
-      // todo: pass into work stream
-    })*/
+    })
+    */
   })
 
+  emitter.on('studio:peer', (studio) => {
+    if (state.studio) { return }
+    state.studio = studio
+
+    let tail = (studio.remoteLength - 1) % 2 == 0 ? studio.remoteLength - 1 : studio.remoteLength - 2
+    let opts = { start : tail, live : true }
+    let read = studio.createReadStream(opts)
+    let ctx = new AudioContext()
+
+    read.on('data', (buf) => {
+      if (tail % 2 == 0) {
+        let floats = asFloats(buf)
+        let buff = ctx.createBuffer(1, floats.length, 8000)
+        let src = ctx.createBufferSource()
+
+        buff.getChannelData(0).set(floats)
+        src.buffer = buff
+        src.connect(ctx.destination)
+        src.start(0)
+
+        console.log('!!! src.start() !!!')
+      }
+      tail++
+    })
+  })
 
   emitter.on('studio:ready', (studio) => {
-    state.studio = studio
-    replicate(studio)
-    studio.get(5492, (err, buf) => {
-      if (err) { return emitter.emit('error', err) }
-
-      let idx = 0
-      let floats = new Float32Array(buf.length / 2)
-
-      while (idx < (buf.length - 1)) {
-        floats[idx / 2] = (1.0 * buf.readInt16LE(idx)) / 0x7FFF
-        idx += 2
-      }
-
-      let ctx = new AudioContext()
-      let buff = ctx.createBuffer(1, floats.length, 8000)
-      let src = ctx.createBufferSource()
-
-      buff.getChannelData(0).set(floats)
-      src.buffer = buff
-      src.connect(ctx.destination)
-      src.start(0)
-
-      console.log('!!! src.start() !!!')
+    replicate(studio, (conn, info) => {
+      setTimeout(() => emitter.emit('studio:peer', studio), 2250)
     })
   })
 
@@ -93,3 +110,5 @@ function store (state, emitter) {
     studio.once('ready', () => emitter.emit('studio:ready', studio))
   })
 }
+
+module.exports = store
