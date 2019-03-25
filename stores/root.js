@@ -4,6 +4,7 @@ const hypercore = require('hypercore')
 const hyperdb   = require('hyperdb')
 const ram       = require('random-access-memory')
 const swarms    = require('@geut/discovery-swarm-webrtc')
+const websocket = require('websocket-stream')
 const signalhub = require('signalhub')
 const dat       = require('../dat.json')
 
@@ -20,7 +21,7 @@ function asFloats(buf) {
   return floats
 }
 
-function replicate(archive, cb) {
+function wrtc(archive, cb) {
   let channel = hyperkeys.encode(archive.key)
   let hub = signalhub(channel, ['https://rhodey.org:9001'])
   let swarm = swarms({
@@ -32,11 +33,20 @@ function replicate(archive, cb) {
     console.log('!!! (conn, info) -> ', info)
     if (cb) { cb(conn, info) }
   })
-  document.body.innerText = "!!! repl() !!!"
+}
+
+function wss(archive) {
+  let ws = websocket('ws://vpn.venceremos:8080')
+  let repl = archive.replicate({ live : true })
+
+  setTimeout(() => {
+    repl.pipe(ws).pipe(repl)
+  }, 2600)
 }
 
 function store (state, emitter) {
   state.readme = 'loading...'
+  state.streaming = false
 
   emitter.on('error', (err) => {
     console.error('!!! error -> ', err)
@@ -47,31 +57,18 @@ function store (state, emitter) {
     emitter.emit(state.events.RENDER)
   })
 
-  emitter.on('db:ready', (db) => {
-    state.db = db
-    replicate(db)
+  emitter.on('studio:peer', () => {
+    if (state.streaming) { return }
+    state.streaming = true
 
-    /*
-    let hour = Math.floor(Date.now() / 1000.0 / 60 / 60)
-    let read = db.createReadStream(`/calls/${hour}/`, { gt : true })
-    read.on('data', (data) => {
-      let key = data[0].key
-      console.log('call -> ', key)
-    })
-    */
-  })
-
-  emitter.on('studio:peer', (studio) => {
-    document.body.innerText = "!!! PEER !!!"
-    if (state.studio) { return }
-    state.studio = studio
-
+    let studio = state.studio
     let tail = (studio.remoteLength - 1) % 2 == 0 ? studio.remoteLength - 1 : studio.remoteLength - 2
     let opts = { start : tail, live : true }
     let read = studio.createReadStream(opts)
     let AudioContext = window.AudioContext || window.webkitAudioContext;
     let ctx = new AudioContext()
 
+    console.log('streaming...')
     read.on('data', (buf) => {
       if (tail % 2 == 0) {
         document.body.innerText = tail
@@ -92,14 +89,19 @@ function store (state, emitter) {
   })
 
   emitter.on('studio:ready', (studio) => {
-    document.body.innerText = "!!! STUDIO !!!"
-    replicate(studio, (conn, info) => {
-      setTimeout(() => emitter.emit('studio:peer', studio), 2250)
-    })
+    state.studio = studio
+    /*wrtc(studio, (conn, info) => {
+      setTimeout(() => emitter.emit('studio:peer'), 2250)
+    })*/
+  })
+
+  emitter.on('studio:wss', () => {
+    console.log('zzzzzzzzzz')
+    wss(state.studio)
+    emitter.emit('studio:peer')
   })
 
   emitter.on('DOMContentLoaded', () => {
-    document.body.innerText = "!!! LOAD !!!"
 
     fetch(new Request('assets/README.md', { cache : 'reload' }))
       .then((r) => r.text())
@@ -119,6 +121,20 @@ function store (state, emitter) {
     db.once('error', (err) => emitter.emit('error', err))
     db.once('ready', () => emitter.emit('db:ready', db))
   })
+
+  /*
+  emitter.on('db:ready', (db) => {
+    state.db = db
+    replicate(db)
+
+    let hour = Math.floor(Date.now() / 1000.0 / 60 / 60)
+    let read = db.createReadStream(`/calls/${hour}/`, { gt : true })
+    read.on('data', (data) => {
+      let key = data[0].key
+      console.log('call -> ', key)
+    })
+  })
+  */
 }
 
 module.exports = store

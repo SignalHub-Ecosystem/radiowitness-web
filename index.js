@@ -5,9 +5,9 @@ css('tachyons')
 
 const app = choo()
 
-if (process.env.NODE_ENV !== 'production') {
+//if (process.env.NODE_ENV !== 'production') {
   app.use(require('choo-devtools')())
-}
+//}
 
 app.use(require('./stores/root'))
 
