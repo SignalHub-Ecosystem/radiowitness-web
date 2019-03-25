@@ -5,9 +5,10 @@ css('tachyons')
 
 const app = choo()
 
-//if (process.env.NODE_ENV !== 'production') {
-  app.use(require('choo-devtools')())
-//}
+app.use(require('choo-devtools')())
+if (process.env.NODE_ENV === 'production') {
+  app.use(require('choo-service-worker')())
+}
 
 app.use(require('./stores/root'))
 

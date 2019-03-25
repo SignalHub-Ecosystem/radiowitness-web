@@ -30,18 +30,32 @@ function wrtc(archive, cb) {
 
   swarm.join(hub, { maxPeers : 4 })
   swarm.on('connection', (conn, info) => {
-    console.log('!!! (conn, info) -> ', info)
+    console.log('!!! wrtc.conn', info)
     if (cb) { cb(conn, info) }
   })
 }
 
 function wss(archive) {
-  let ws = websocket('ws://vpn.venceremos:8080')
-  let repl = archive.replicate({ live : true })
+  return new Promise((res, rej) => {
+    let ws = websocket('ws://vpn.venceremos:8080')
+    ws.on('error', rej)
+    ws.once('connect', () => {
+      let repl = archive.replicate({ live : true })
+      console.log('!!! wss.conn')
+      repl.pipe(ws).pipe(repl)
+      repl.on('error', rej)
+      res(archive)
+    })
+  })
+}
 
-  setTimeout(() => {
-    repl.pipe(ws).pipe(repl)
-  }, 2600)
+function about(core) {
+  return new Promise((res, req) => {
+    core.get(0, (err, data) => {
+      if (err) { rej(err) }
+      else { res(core) }
+    })
+  })
 }
 
 function store (state, emitter) {
@@ -61,31 +75,33 @@ function store (state, emitter) {
     if (state.streaming) { return }
     state.streaming = true
 
-    let studio = state.studio
-    let tail = (studio.remoteLength - 1) % 2 == 0 ? studio.remoteLength - 1 : studio.remoteLength - 2
-    let opts = { start : tail, live : true }
-    let read = studio.createReadStream(opts)
-    let AudioContext = window.AudioContext || window.webkitAudioContext;
-    let ctx = new AudioContext()
+    about(state.studio).then(() => {
+      let studio = state.studio
+      let tail = (studio.remoteLength - 1) % 2 == 0 ? studio.remoteLength - 1 : studio.remoteLength - 2
+      let opts = { start : tail, live : true }
+      let read = studio.createReadStream(opts)
+      let AudioContext = window.AudioContext || window.webkitAudioContext;
+      let ctx = new AudioContext()
 
-    console.log('streaming...')
-    read.on('data', (buf) => {
-      if (tail % 2 == 0) {
-        document.body.innerText = tail
+      console.log('streaming...')
+      read.on('data', (buf) => {
+        if (tail % 2 == 0) {
+          document.body.innerText = tail
 
-        let floats = asFloats(buf)
-        let buff = ctx.createBuffer(1, floats.length, 8000)
-        let src = ctx.createBufferSource()
+          let floats = asFloats(buf)
+          let buff = ctx.createBuffer(1, floats.length, 8000)
+          let src = ctx.createBufferSource()
 
-        buff.getChannelData(0).set(floats)
-        src.buffer = buff
-        src.connect(ctx.destination)
-        src.start(0)
+          buff.getChannelData(0).set(floats)
+          src.buffer = buff
+          src.connect(ctx.destination)
+          src.start(0)
 
-        console.log('!!! src.start() !!!')
-      }
-      tail++
-    })
+          console.log('!!! src.start() !!!')
+        }
+        tail++
+      })
+    }).catch(console.error)
   })
 
   emitter.on('studio:ready', (studio) => {
@@ -98,7 +114,7 @@ function store (state, emitter) {
   emitter.on('studio:wss', () => {
     console.log('zzzzzzzzzz')
     wss(state.studio)
-    emitter.emit('studio:peer')
+      .then(() => emitter.emit('studio:peer'))
   })
 
   emitter.on('DOMContentLoaded', () => {
