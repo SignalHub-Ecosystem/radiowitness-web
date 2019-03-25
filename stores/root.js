@@ -32,6 +32,7 @@ function replicate(archive, cb) {
     console.log('!!! (conn, info) -> ', info)
     if (cb) { cb(conn, info) }
   })
+  document.body.innerText = "!!! repl() !!!"
 }
 
 function store (state, emitter) {
@@ -61,16 +62,20 @@ function store (state, emitter) {
   })
 
   emitter.on('studio:peer', (studio) => {
+    document.body.innerText = "!!! PEER !!!"
     if (state.studio) { return }
     state.studio = studio
 
     let tail = (studio.remoteLength - 1) % 2 == 0 ? studio.remoteLength - 1 : studio.remoteLength - 2
     let opts = { start : tail, live : true }
     let read = studio.createReadStream(opts)
+    let AudioContext = window.AudioContext || window.webkitAudioContext;
     let ctx = new AudioContext()
 
     read.on('data', (buf) => {
       if (tail % 2 == 0) {
+        document.body.innerText = tail
+
         let floats = asFloats(buf)
         let buff = ctx.createBuffer(1, floats.length, 8000)
         let src = ctx.createBufferSource()
@@ -87,27 +92,32 @@ function store (state, emitter) {
   })
 
   emitter.on('studio:ready', (studio) => {
+    document.body.innerText = "!!! STUDIO !!!"
     replicate(studio, (conn, info) => {
       setTimeout(() => emitter.emit('studio:peer', studio), 2250)
     })
   })
 
   emitter.on('DOMContentLoaded', () => {
+    document.body.innerText = "!!! LOAD !!!"
+
     fetch(new Request('assets/README.md', { cache : 'reload' }))
       .then((r) => r.text())
       .then((readme) => emitter.emit('doc:readme', readme))
 
-    let dkey = 'd54ab07c5daa1c51f4e39f5e35b67306821b8df9c8bdbc9b561b42b8d13eba49'
-    let db = hyperdb((fname) => ram(), dkey)
-
-    db.once('error', (err) => emitter.emit('error', err))
-    db.once('ready', () => emitter.emit('db:ready', db))
-
-    let skey = 'e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968'
+    let skey = dat.links.publisher[1].href.split('dat://')[1]
+    // let skey = 'e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968'
     let studio = hypercore((fname) => ram(), skey, { sparse : true })
 
     studio.once('error', (err) => emitter.emit('error', err))
     studio.once('ready', () => emitter.emit('studio:ready', studio))
+
+    let dkey = dat.links.publisher[2].href.split('dat://')[1]
+    // let dkey = 'd54ab07c5daa1c51f4e39f5e35b67306821b8df9c8bdbc9b561b42b8d13eba49'
+    let db = hyperdb((fname) => ram(), dkey)
+
+    db.once('error', (err) => emitter.emit('error', err))
+    db.once('ready', () => emitter.emit('db:ready', db))
   })
 }
 

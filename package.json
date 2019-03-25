@@ -24,8 +24,8 @@
     "hyperdb": "^3.5.0",
     "wrtc": "^0.3.6",
     "@geut/discovery-swarm-webrtc": "^1.2.0",
-    "signalhub": "^4.9.0",
-    "discovery-swarm-web": "^1.0.2"
+    "websocket-stream": "^5.1.2",
+    "signalhub": "^4.9.0"
   },
   "devDependencies": {
     "bankai": "^9.15.0",

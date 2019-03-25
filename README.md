@@ -1,6 +1,12 @@
 # rw-web
 Publisher homepage and project documentation.
 
+```
+$ ./bin/radiowitness wss dat://studio.key
+$ ./bin/radiowitness web dat://studio.key wss://cool.pub.peer > web/dat.json
+$ npm run build --prefix web/
+```
+
 ## Commands
 Command                | Description                                      |
 -----------------------|--------------------------------------------------|
