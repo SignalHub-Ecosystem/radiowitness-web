@@ -25,7 +25,8 @@
     "wrtc": "^0.3.6",
     "@geut/discovery-swarm-webrtc": "^1.2.0",
     "websocket-stream": "^5.1.2",
-    "signalhub": "^4.9.0"
+    "signalhub": "^4.9.0",
+    "howler": "^2.1.1"
   },
   "devDependencies": {
     "bankai": "^9.15.0",

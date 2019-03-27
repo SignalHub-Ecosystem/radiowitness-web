@@ -6,6 +6,7 @@ const ram       = require('random-access-memory')
 const swarms    = require('@geut/discovery-swarm-webrtc')
 const websocket = require('websocket-stream')
 const signalhub = require('signalhub')
+const howler    = require('howler')
 const dat       = require('../dat.json')
 
 
@@ -79,14 +80,31 @@ function store (state, emitter) {
   })
 
   emitter.on('radio:play', () => {
-    if (state.audio) { return }
-    let AudioContext = window.AudioContext || window.webkitAudioContext
-    state.audio = new AudioContext()
+    // todo: nothing
   })
+
+  const dataUri = (buf) => {
+    return `data:audio/wav;base64,${buf.toString('base64')}`
+  }
+
+  const howlLoadError = (id, err) => { console.log('QQQ on load error ->', err) }
+  const howlPlayError = (id, err) => { console.log('QQQ on play error ->', err) }
+
+  const howlFor = (buf) => {
+    return new howler.Howl({
+      src         : [dataUri(buf)],
+      autoplay    : true,
+      format      : ["wav"],
+      onloaderror : howlLoadError,
+      onplayerror : howlPlayError
+    })
+  }
 
   emitter.on('studio:about', (abt) => {
     if (state.streaming) { return }
+    state.tail = 0
     state.streaming = true
+    emitter.emit(state.events.RENDER)
 
     let studio = state.studio
     let tail = (studio.remoteLength - 1) % 2 == 0 ? studio.remoteLength - 1 : studio.remoteLength - 2
@@ -95,17 +113,9 @@ function store (state, emitter) {
 
     console.log('streaming...')
     read.on('data', (buf) => {
-      if (state.audio && tail % 2 == 0) {
-        let floats = asFloats(buf)
-        let buff = state.audio.createBuffer(1, floats.length, 8000)
-        let src = state.audio.createBufferSource()
-
-        buff.getChannelData(0).set(floats)
-        src.buffer = buff
-        src.connect(state.audio.destination)
-        src.start(0)
-
-        console.log('!!! src.start() !!!')
+      if (tail % 2 == 0) {
+        let howl = howlFor(buf)
+        console.log('howl', howl)
       }
 
       state.tail = tail++
@@ -129,7 +139,6 @@ function store (state, emitter) {
             return about(core)
           }).then((abt) => {
             state.wss = 'nice'
-            emitter.emit(state.events.RENDER)
             emitter.emit('studio:about', abt)
           }).catch(console.error)
       }
