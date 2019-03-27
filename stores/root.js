@@ -51,7 +51,7 @@ function wrtc(archive, cb) {
 
 function wss(archive) {
   return new Promise((res, rej) => {
-    let ws = websocket('ws://vpn.venceremos:8080')
+    let ws = websocket('ws://rhodey.org:8443')
     ws.on('error', rej)
     ws.once('connect', () => {
       let repl = archive.replicate({ live : true })
