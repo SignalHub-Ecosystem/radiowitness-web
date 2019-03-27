@@ -51,7 +51,7 @@ function wrtc(archive, cb) {
 
 function wss(archive) {
   return new Promise((res, rej) => {
-    let ws = websocket('ws://rhodey.org:8443')
+    let ws = websocket('wss://rhodey.org:8443')
     ws.on('error', rej)
     ws.once('connect', () => {
       let repl = archive.replicate({ live : true })
@@ -122,12 +122,14 @@ function store (state, emitter) {
       }
     }, 5000)
 
+    /*
     wrtc(studio)
       .then((peer) => about(studio))
       .then((abt) => {
         clearTimeout(timer)
         emitter.emit('studio:about', abt)
       }).catch((err) => emitter.emit('error', err))
+      */
   })
 
   emitter.on('DOMContentLoaded', () => {
