@@ -38,10 +38,10 @@ Police radio is unlike the radio you hear from a car or boombox because it trave
 $ ./bin/radiowitness studio install
 $ ./bin/radiowitness studio dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178
 > studio input  -> dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178
-> studio output -> dat://383c52590b298fe1556061aa6aa2dfde723da536016ffabfbec9072e21f3e67b
+> studio output -> dat://e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968
 > studio ready, restarting from 300.
 $
-$ ./bin/radiowitness play dat://383c52590b298fe1556061aa6aa2dfde723da536016ffabfbec9072e21f3e67b | \
+$ ./bin/radiowitness play dat://e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968 | \
     play -t raw -b 16 -e signed -r 8k -c 1 -
 ```
 
@@ -49,9 +49,9 @@ $ ./bin/radiowitness play dat://383c52590b298fe1556061aa6aa2dfde723da536016ffabf
 The archives created by Studios are basically giant, ever-growing [.WAV audio files](https://en.wikipedia.org/wiki/WAV) with a handful of extra metadata thrown in. Studio archives are great for streaming live, but to really explore years worth of audio some search indexes are needed. Indexing reads an audio archive as input and produces a [hyperdb](https://github.com/mafintosh/hyperdb) as output with calls batched by hours-since-unix-epoch at keys with the form `/calls/{epoch-hour}/{callid}`:
 ```
 $ ./bin/radiowitness indexing install
-$ ./bin/radiowitness indexing dat://383c52590b298fe1556061aa6aa2dfde723da536016ffabfbec9072e21f3e67b
-> index input  -> dat://383c52590b298fe1556061aa6aa2dfde723da536016ffabfbec9072e21f3e67b
-> index output -> dat://c410d27f994732f52aaa4f0fdf16fcb67f9c11c61016acd26f0281f5b96ca879
+$ ./bin/radiowitness indexing dat://e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968
+> index input  -> dat://e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968
+> index output -> dat://d54ab07c5daa1c51f4e39f5e35b67306821b8df9c8bdbc9b561b42b8d13eba49
 > index ready, restarting from 120.
 ```
 
