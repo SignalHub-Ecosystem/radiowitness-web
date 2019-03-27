@@ -21,17 +21,31 @@ function asFloats(buf) {
   return floats
 }
 
-function wrtc(archive, cb) {
-  let channel = hyperkeys.encode(archive.key)
-  let hub = signalhub(channel, ['https://rhodey.org:9001'])
-  let swarm = swarms({
-    stream : () => archive.replicate({ live : true })
+function about(core) {
+  return new Promise((res, req) => {
+    core.get(0, (err, data) => {
+      if (err) {
+        rej(err)
+      } else {
+        res(codec.decode(data))
+      }
+    })
   })
+}
 
-  swarm.join(hub, { maxPeers : 4 })
-  swarm.on('connection', (conn, info) => {
-    console.log('!!! wrtc.conn', info)
-    if (cb) { cb(conn, info) }
+function wrtc(archive, cb) {
+  return new Promise((res, rej) => {
+    let channel = hyperkeys.encode(archive.key)
+    let hub = signalhub(channel, ['https://rhodey.org:9001'])
+    let swarm = swarms({
+      stream : () => archive.replicate({ live : true })
+    })
+
+    swarm.join(hub, { maxPeers : 4 })
+    swarm.on('connection', (conn, info) => {
+      console.log('!!! wrtc.conn', info)
+      res(info)
+    })
   })
 }
 
@@ -49,18 +63,10 @@ function wss(archive) {
   })
 }
 
-function about(core) {
-  return new Promise((res, req) => {
-    core.get(0, (err, data) => {
-      if (err) { rej(err) }
-      else { res(core) }
-    })
-  })
-}
-
 function store (state, emitter) {
   state.readme = 'loading...'
   state.streaming = false
+  state.audio = false
 
   emitter.on('error', (err) => {
     console.error('!!! error -> ', err)
@@ -71,75 +77,81 @@ function store (state, emitter) {
     emitter.emit(state.events.RENDER)
   })
 
-  emitter.on('studio:peer', () => {
+  emitter.on('radio:play', () => {
+    if (state.audio) { return }
+    let AudioContext = window.AudioContext || window.webkitAudioContext
+    state.audio = new AudioContext()
+  })
+
+  emitter.on('studio:about', (abt) => {
     if (state.streaming) { return }
     state.streaming = true
 
-    about(state.studio).then(() => {
-      let studio = state.studio
-      let tail = (studio.remoteLength - 1) % 2 == 0 ? studio.remoteLength - 1 : studio.remoteLength - 2
-      let opts = { start : tail, live : true }
-      let read = studio.createReadStream(opts)
-      let AudioContext = window.AudioContext || window.webkitAudioContext;
-      let ctx = new AudioContext()
+    let studio = state.studio
+    let tail = (studio.remoteLength - 1) % 2 == 0 ? studio.remoteLength - 1 : studio.remoteLength - 2
+    let opts = { start : tail, live : true }
+    let read = studio.createReadStream(opts)
 
-      console.log('streaming...')
-      read.on('data', (buf) => {
-        if (tail % 2 == 0) {
-          document.body.innerText = tail
+    console.log('streaming...')
+    read.on('data', (buf) => {
+      if (state.audio && tail % 2 == 0) {
+        let floats = asFloats(buf)
+        let buff = state.audio.createBuffer(1, floats.length, 8000)
+        let src = state.audio.createBufferSource()
 
-          let floats = asFloats(buf)
-          let buff = ctx.createBuffer(1, floats.length, 8000)
-          let src = ctx.createBufferSource()
+        buff.getChannelData(0).set(floats)
+        src.buffer = buff
+        src.connect(state.audio.destination)
+        src.start(0)
 
-          buff.getChannelData(0).set(floats)
-          src.buffer = buff
-          src.connect(ctx.destination)
-          src.start(0)
-
-          console.log('!!! src.start() !!!')
-        }
-        tail++
-      })
-    }).catch(console.error)
+        console.log('!!! src.start() !!!')
+      }
+      tail++
+    })
   })
 
-  emitter.on('studio:ready', (studio) => {
+  emitter.on('studio:open', (studio) => {
     state.studio = studio
-    /*wrtc(studio, (conn, info) => {
-      setTimeout(() => emitter.emit('studio:peer'), 2250)
-    })*/
-  })
 
-  emitter.on('studio:wss', () => {
-    console.log('zzzzzzzzzz')
-    wss(state.studio)
-      .then(() => emitter.emit('studio:peer'))
+    let timer = setTimeout(() => {
+      if (!state.streaming) {
+        wss(studio)
+          .then(about)
+          .then((abt) => emitter.emit('studio:about', abt))
+          .catch((err) => emitter.emit('error', err))
+      }
+    }, 5000)
+
+    wrtc(studio)
+      .then((peer) => about(studio))
+      .then((abt) => {
+        clearTimeout(timer)
+        emitter.emit('studio:about', abt)
+      }).catch((err) => emitter.emit('error', err))
   })
 
   emitter.on('DOMContentLoaded', () => {
-
     fetch(new Request('assets/README.md', { cache : 'reload' }))
       .then((r) => r.text())
       .then((readme) => emitter.emit('doc:readme', readme))
 
-    let skey = dat.links.publisher[1].href.split('dat://')[1]
     // let skey = 'e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968'
+    let skey = dat.links.publisher[1].href.split('dat://')[1]
     let studio = hypercore((fname) => ram(), skey, { sparse : true })
 
     studio.once('error', (err) => emitter.emit('error', err))
-    studio.once('ready', () => emitter.emit('studio:ready', studio))
+    studio.once('ready', () => emitter.emit('studio:open', studio))
 
-    let dkey = dat.links.publisher[2].href.split('dat://')[1]
     // let dkey = 'd54ab07c5daa1c51f4e39f5e35b67306821b8df9c8bdbc9b561b42b8d13eba49'
+    let dkey = dat.links.publisher[2].href.split('dat://')[1]
     let db = hyperdb((fname) => ram(), dkey)
 
     db.once('error', (err) => emitter.emit('error', err))
-    db.once('ready', () => emitter.emit('db:ready', db))
+    db.once('ready', () => emitter.emit('db:open', db))
   })
 
   /*
-  emitter.on('db:ready', (db) => {
+  emitter.on('db:open', (db) => {
     state.db = db
     replicate(db)
 

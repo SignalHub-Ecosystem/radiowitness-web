@@ -9,12 +9,12 @@ function view (state, emit) {
     emit(state.events.DOMTITLECHANGE, TITLE)
   }
 
-  const wss = () => emit('studio:wss')
+  const play = () => emit('radio:play')
 
   return html`<body>
     <h2>${dat.title}</h2>
     <p>${dat.description}</p>
     <p>${dat.title} is participating as a Publisher in the RadioWitness p2p network, <a href="/doc">learn more here.</a></p>
-    <button onclick=${wss}>websocket!</button>
+    <button onclick=${play}>PLAY!</button>
   </body>`
 }
