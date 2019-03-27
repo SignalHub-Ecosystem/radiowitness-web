@@ -67,6 +67,7 @@ function store (state, emitter) {
   state.readme = 'loading...'
   state.streaming = false
   state.audio = false
+  state.tail = -1
 
   emitter.on('error', (err) => {
     console.error('!!! error -> ', err)
@@ -106,28 +107,45 @@ function store (state, emitter) {
 
         console.log('!!! src.start() !!!')
       }
-      tail++
+
+      state.tail = tail++
+      emitter.emit(state.events.RENDER)
     })
   })
 
   emitter.on('studio:open', (studio) => {
     state.studio = studio
+    state.wrtc = 'waiting'
+    state.wss = 'waiting'
 
     let timer = setTimeout(() => {
       if (!state.streaming) {
+        state.wss = 'connecting'
+        emitter.emit(state.events.RENDER)
         wss(studio)
-          .then(about)
-          .then((abt) => emitter.emit('studio:about', abt))
-          .catch((err) => emitter.emit('error', err))
+          .then((core) => {
+            state.wss = 'querying'
+            emitter.emit(state.events.RENDER)
+            return about(core)
+          }).then((abt) => {
+            state.wss = 'nice'
+            emitter.emit(state.events.RENDER)
+            emitter.emit('studio:about', abt)
+          }).catch(console.error)
       }
     }, 5000)
 
     wrtc(studio)
-      .then((peer) => about(studio))
-      .then((abt) => {
+      .then((peer) => {
+        state.wrtc = 'querying'
+        emitter.emit(state.events.RENDER)
+        return about(studio)
+      }).then((abt) => {
+        state.wrtc = 'nice'
         clearTimeout(timer)
+        emitter.emit(state.events.RENDER)
         emitter.emit('studio:about', abt)
-      }).catch((err) => emitter.emit('error', err))
+      }).catch(console.error)
   })
 
   emitter.on('DOMContentLoaded', () => {

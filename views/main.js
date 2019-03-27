@@ -16,5 +16,8 @@ function view (state, emit) {
     <p>${dat.description}</p>
     <p>${dat.title} is participating as a Publisher in the RadioWitness p2p network, <a href="/doc">learn more here.</a></p>
     <button onclick=${play}>PLAY!</button>
+    <p>wrtc://${state.wrtc}</p>
+    <p>wss://${state.wss}</p>
+    <p>tail -> ${state.tail}</p>
   </body>`
 }
