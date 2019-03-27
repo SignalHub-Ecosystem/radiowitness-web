@@ -122,14 +122,12 @@ function store (state, emitter) {
       }
     }, 5000)
 
-    /*
     wrtc(studio)
       .then((peer) => about(studio))
       .then((abt) => {
         clearTimeout(timer)
         emitter.emit('studio:about', abt)
       }).catch((err) => emitter.emit('error', err))
-      */
   })
 
   emitter.on('DOMContentLoaded', () => {
