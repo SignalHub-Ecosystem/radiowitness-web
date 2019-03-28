@@ -1,5 +1,5 @@
 # rw-web
-Publisher homepage and project documentation.
+Publisher homepage generator.
 
 ```
 $ ./bin/radiowitness wss dat://studio.key
