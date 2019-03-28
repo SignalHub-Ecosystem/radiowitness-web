@@ -5,10 +5,10 @@ Immutable, peer-to-peer archiving and distribution of police radio calls. Author
 Install [node & npm](https://nodejs.org/en/download/) then [rustc & cargo](https://www.rust-lang.org/en-US/install.html) as well. 
 
 ## Downloading
-This software distribution is itself a Dat Archive, you can get a copy of it by opening [this link](dat://dd26051f7683af0bc8a2a8dd4d23f6326db081c4cdf46eb1c70ce2eb3dc38630) in [Beaker Browser](https://beakerbrowser.com), or from the command line:
+This software distribution is itself a Dat Archive, you can get a copy of it by opening [this link](dat://9a46f0cebcf74499a0fd07edcf14512d1fb6b25fe187c5e1a4e691e5fae73fbb) in [Beaker Browser](https://beakerbrowser.com), or from the command line:
 ```
 $ npm install -g dat
-$ dat clone dat://dd26051f7683af0bc8a2a8dd4d23f6326db081c4cdf46eb1c70ce2eb3dc38630 ./radiowitness
+$ dat clone dat://9a46f0cebcf74499a0fd07edcf14512d1fb6b25fe187c5e1a4e691e5fae73fbb ./radiowitness
 $ cd ./radiowitness
 $ chmod +x ./bin/radiowitness
 ```
@@ -61,6 +61,7 @@ $ mkdir -p archive.web
 $ ./bin/radiowitness web dat://author.key \
     --studio dat://studio.key --index dat://index.key > archive.web/dat.json
 $ ln -f archive.web/dat.json web/dat.json
+$ ln -f README.md web/assets/README.md
 $ npm run build --prefix web/
 $ cp -r web/dist/* archive.web/
 $ dat sync archive.web
