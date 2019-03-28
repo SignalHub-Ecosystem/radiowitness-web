@@ -5,10 +5,10 @@ Immutable, peer-to-peer archiving and distribution of police radio calls. Author
 Install [node & npm](https://nodejs.org/en/download/) then [rustc & cargo](https://www.rust-lang.org/en-US/install.html) as well. 
 
 ## Downloading
-This software distribution is itself a Dat Archive, you can get a copy of it by opening [this link](dat://cda26788102ec1e166b72f2ed685f4dd1480c59189c03f23c253b822200fc152) in [Beaker Browser](https://beakerbrowser.com), or from the command line:
+This software distribution is itself a Dat Archive, you can get a copy of it by opening [this link](dat://dd26051f7683af0bc8a2a8dd4d23f6326db081c4cdf46eb1c70ce2eb3dc38630) in [Beaker Browser](https://beakerbrowser.com), or from the command line:
 ```
 $ npm install -g dat
-$ dat clone dat://cda26788102ec1e166b72f2ed685f4dd1480c59189c03f23c253b822200fc152 ./radiowitness
+$ dat clone dat://dd26051f7683af0bc8a2a8dd4d23f6326db081c4cdf46eb1c70ce2eb3dc38630 ./radiowitness
 $ cd ./radiowitness
 $ chmod +x ./bin/radiowitness
 ```
@@ -23,25 +23,25 @@ $ echo "851162500,851287500,851137500" | ./bin/radiowitness search -d 0 -g 26
 > channel found at 851287500Hz
 $
 $ ./bin/radiowitness author create --lat "30.245016" --lon="-97.788914" --wacn 781833 --sysid 318 --rfssid 1 --siteid 1
-> dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178
+> dat://04bb281dd5329b15898e0ee6bf20c6b82ab4e02af9b05697b7359ba9f25a1e3e
 $
 $ ./bin/radiowitness publisher install
 $ mkfifo /tmp/replication
 $
 $ ./bin/radiowitness author --radios 3 --mux 2 -s 1200000 -g 26 -f 851287500 < /tmp/replication | \
-    ./bin/radiowitness publisher dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178 > /tmp/replication
+    ./bin/radiowitness publisher dat://04bb281dd5329b15898e0ee6bf20c6b82ab4e02af9b05697b7359ba9f25a1e3e > /tmp/replication
 ```
 
 ## Audio Synthesis
 Police radio is unlike the radio you hear from a car or boombox because it travels through the airwaves in a compressed form, all this means is that we've got to do an extra step to get something audible out of it. This extra step is intentionally left behind by both Author and Publisher peers because the *raw* radio archive has importance in and of itself. The Studio peer reads a radio archive as input and produces an audio archive as output:
 ```
 $ ./bin/radiowitness studio install
-$ ./bin/radiowitness studio dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178
-> studio input  -> dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178
-> studio output -> dat://e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968
+$ ./bin/radiowitness studio dat://04bb281dd5329b15898e0ee6bf20c6b82ab4e02af9b05697b7359ba9f25a1e3e
+> studio input  -> dat://04bb281dd5329b15898e0ee6bf20c6b82ab4e02af9b05697b7359ba9f25a1e3e
+> studio output -> dat://0cce06088924fdbfdbb265d016c72527d9ca263d607c2027fa7c4ee33b04f955
 > studio ready, restarting from 300.
 $
-$ ./bin/radiowitness play dat://e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968 | \
+$ ./bin/radiowitness play dat://0cce06088924fdbfdbb265d016c72527d9ca263d607c2027fa7c4ee33b04f955 | \
     play -t raw -b 16 -e signed -r 8k -c 1 -
 ```
 
@@ -49,9 +49,9 @@ $ ./bin/radiowitness play dat://e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff
 The archives created by Studios are basically giant, ever-growing [.WAV audio files](https://en.wikipedia.org/wiki/WAV) with a handful of extra metadata thrown in. Studio archives are great for streaming live, but to really explore years worth of audio some search indexes are needed. Indexing reads an audio archive as input and produces a [hyperdb](https://github.com/mafintosh/hyperdb) as output with calls batched by hours-since-unix-epoch at keys with the form `/calls/{epoch-hour}/{callid}`:
 ```
 $ ./bin/radiowitness indexing install
-$ ./bin/radiowitness indexing dat://e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968
-> index input  -> dat://e15b79ace0aa20d0ca8f795361621cda789d3d3e825eb5ff09aafb296683d968
-> index output -> dat://d54ab07c5daa1c51f4e39f5e35b67306821b8df9c8bdbc9b561b42b8d13eba49
+$ ./bin/radiowitness indexing dat://0cce06088924fdbfdbb265d016c72527d9ca263d607c2027fa7c4ee33b04f955
+> index input  -> dat://0cce06088924fdbfdbb265d016c72527d9ca263d607c2027fa7c4ee33b04f955
+> index output -> dat://83e9f570ff9f914b0051885f213ec881604485bc8751bfcdd002fe7178d0c568
 > index ready, restarting from 120.
 ```
 
@@ -149,7 +149,7 @@ $ ./bin/radiowitness devstuff
 publisher:
 ```
 $ while true; do time ncat -l -p 6666 -c \
-  "./bin/radiowitness publisher dat://ba80c3ce100dcf0a70633e10ac6a89d5a55edc9531c1be0fdffc39986cca4178"; \
+  "./bin/radiowitness publisher dat://04bb281dd5329b15898e0ee6bf20c6b82ab4e02af9b05697b7359ba9f25a1e3e"; \
   sleep 5; done
 ```
 
