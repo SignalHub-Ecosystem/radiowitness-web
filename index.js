@@ -10,9 +10,10 @@ if (process.env.NODE_ENV === 'production') {
   app.use(require('choo-service-worker')())
 }
 
-app.use(require('./lib/stores/root'))
+app.use(require('./lib/store'))
 
 app.route('/', require('./lib/views/main'))
+app.route('/anime', require('./lib/views/animate'))
 app.route('/*', require('./lib/views/404'))
 
 module.exports = app.mount('body')
