@@ -2,7 +2,7 @@
 Publisher homepage generator.
 
 ```
-$ ./bin/radiowitness wss dat://studio.key
+$ ./bin/radiowitness wss --core dat://studio.key --db dat://db.key
 $ ./bin/radiowitness json dat://studio.key wss://cool.pub.peer > web/dat.json
 $ npm run build --prefix web/
 ```
