@@ -11,6 +11,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(require('./lib/store'))
+app.use(require('./lib/store-dat'))
 
 app.route('/', require('./lib/views/main'))
 app.route('/anime', require('./lib/views/animate'))

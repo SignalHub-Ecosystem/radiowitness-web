@@ -2,8 +2,10 @@
 Publisher homepage generator.
 
 ```
-$ ./bin/radiowitness wss --core dat://studio.key --db dat://db.key
-$ ./bin/radiowitness json dat://studio.key wss://cool.pub.peer > web/dat.json
+$ ./bin/radiowitness json dat://author.key \
+    --studio dat://studio.key \
+    --index dat://db.key \
+    > web/dat.json
 $ npm run build --prefix web/
 ```
 
