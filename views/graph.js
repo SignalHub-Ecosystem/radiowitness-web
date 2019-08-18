@@ -27,11 +27,14 @@ class Graph extends Comp {
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    this.local.svg = svg
+
     let node = svg
       .selectAll("circle")
       .data(this.local.nodes)
       .enter()
       .append("circle")
+        .attr("id", (d) => d.id)
         .attr("r", 20)
         .style("fill", "#69b3a2")
 
@@ -60,23 +63,21 @@ class Graph extends Comp {
     this.drawActive()
   }
 
-  clearActive() {
-
-  }
-
   drawActive () {
-
+    this.local.svg.selectAll("circle")
+      .style("fill", "#69b3a2")
+      .filter((node) => node.id === this.local.active)
+      .style("fill", "red")
   }
 
   update (data, active) {
     if (this.local.nodes.length !== data.nodes.length ||
         this.local.links.length !== data.links.length) {
       console.log('!!! update true')
-      this.local.nodes = data.nodes.slice()
-      this.local.links = data.links.slice()
+      this.local.nodes = data.nodes.map(Object.create)
+      this.local.links = data.links.map(Object.create)
       return true
     } else if (this.local.active != active) {
-      this.clearActive()
       this.local.active = active
       this.drawActive()
     }
@@ -86,8 +87,8 @@ class Graph extends Comp {
 
   createElement (data, active) {
     console.log('!!! create')
-    this.local.nodes = data.nodes.slice()
-    this.local.links = data.links.slice()
+    this.local.nodes = data.nodes.map(Object.create)
+    this.local.links = data.links.map(Object.create)
     this.local.active = active
     return html`<div class="chart"></div>`
   }
@@ -103,10 +104,13 @@ function view (state, emit) {
     emit(state.events.DOMTITLECHANGE, TITLE)
   }
 
+  const next = () => emit('graph:next')
+
   return html`<body>
     <h2>d3</h2>
     <p>database -> ${state.db.msg}</p>
     <p>studio -> ${state.studio.msg}</p>
+    <button onclick=${next}>NEXT!</button>
     ${state.cache(Graph, 'graph').render(state.data, state.active)}
   </body>`
 }

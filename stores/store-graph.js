@@ -15,9 +15,17 @@ function store (state, emitter) {
         setTimeout(() => {
           state.data.links.pop()
           state.data.links.pop()
+          state.data.nodes.push({id: 11, name: "K"})
+          state.data.links.push({source: 1, target: 11})
+          console.log(state.data.links)
           emitter.emit(state.events.RENDER)
         }, 2500)
       })
+  })
+
+  emitter.on('graph:next', () => {
+    state.active += 1
+    emitter.emit(state.events.RENDER)
   })
 
   emitter.on('dat:ready-db', () => {
