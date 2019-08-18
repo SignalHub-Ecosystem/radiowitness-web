@@ -35,6 +35,7 @@ function store (state, emitter) {
     })
   }
 
+  /*
   emitter.on('dat:ready-studio', () => {
     if (state.streaming) { return }
     state.tail = 0
@@ -54,19 +55,6 @@ function store (state, emitter) {
       }
       state.tail = tail++
       emitter.emit(state.events.RENDER)
-    })
-  })
-
-  /*
-  emitter.on('dat:ready-db', (db) => {
-    state.db = db
-    replicate(db)
-
-    let hour = Math.floor(Date.now() / 1000.0 / 60 / 60)
-    let read = db.createReadStream(`/calls/${hour}/`, { gt : true })
-    read.on('data', (data) => {
-      let key = data[0].key
-      console.log('call -> ', key)
     })
   })
   */

@@ -12,8 +12,9 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use(require('./stores/store'))
 app.use(require('./stores/store-dat'))
+app.use(require('./stores/store-graph'))
 
-app.route('/', require('./views/d3'))
+app.route('/', require('./views/graph'))
 app.route('/studio', require('./views/studio'))
 app.route('/*', require('./views/404'))
 
