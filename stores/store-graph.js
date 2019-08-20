@@ -46,28 +46,33 @@ function store (state, emitter) {
     let read = state.db.createReadStream(`/calls/${hour - 1}/`, { gt : true })
     let groups = {}
     let radios = {}
-    let links = []
+    let links = {}
     let count = 0
 
     read.on('data', (data) => {
-      let key = data[0].key
       let call = codec.decode(data[0].value)
       groups[call.group] = groups[call.group] ? groups[call.group] + 1 : 1
       radios[call.source] = radios[call.source] ? radios[call.source] + 1 : 1
-      links.push({source: call.source, target: call.group})
+
+      let key = call.source + '-' + call.group
+      if (!links[key]) {
+        links[key] = { source: call.source, target: call.group, count: 1 }
+      } else {
+        links[key].count += 1
+      }
 
       if (count++ % 50 === 0) {
         let nodes = relative(mapGroupCounts(groups)).concat(relative(mapCounts(radios)))
         state.data.nodes = nodes.map(Object.create)
-        state.data.links = links.map(Object.create)
+        state.data.links = relative(Object.keys(links).map((k) => links[k]))
         emitter.emit(state.events.RENDER)
       }
     })
+
     read.on('end', () => {
       let nodes = relative(mapGroupCounts(groups)).concat(relative(mapCounts(radios)))
       state.data.nodes = nodes
-      state.data.links = links
-      console.log('!!! len ->', links.length)
+      state.data.links = relative(Object.keys(links).map((k) => links[k]))
       emitter.emit(state.events.RENDER)
     })
   })

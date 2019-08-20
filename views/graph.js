@@ -17,8 +17,10 @@ class Graph extends Comp {
   sizeof (node) {
     if (node.group) {
       return Math.max(10, Math.floor(node.count * 25))
-    } else {
+    } else if (!node.target) {
       return Math.max(5, Math.floor(node.count * 15))
+    } else {
+      return Math.max(0.5, Math.floor(node.count * 4))
     }
   }
 
@@ -50,7 +52,8 @@ class Graph extends Comp {
       .data(this.local.links)
       .enter()
       .append("line")
-        .style("stroke", "#aaa")
+        .attr("stroke", "#000")
+        .attr("stroke-width", this.sizeof)
 
     this.local.simulation = d3.forceSimulation(this.local.nodes)
       .force("link", d3.forceLink().links(this.local.links).id((d) => d.id))
