@@ -2,28 +2,17 @@ const d3    = require('d3')
 const codec = require('codecs')('json')
 
 function store (state, emitter) {
+  state.time = Date.now() - (1000 * 60 * 60)
   state.active = -1
   state.data = {
     nodes : [],
     links : []
   }
 
-  /*
-  emitter.on('DOMContentLoaded', () => {
-    d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_network.json")
-      .then((data) => {
-        state.data = data
-        emitter.emit(state.events.RENDER)
-        setTimeout(() => {
-          state.data.links.pop()
-          state.data.links.pop()
-          state.data.nodes.push({id: 11, name: "K"})
-          state.data.links.push({source: 1, target: 11})
-          emitter.emit(state.events.RENDER)
-        }, 2500)
-      })
+  emitter.on('graph:time', (time) => {
+    state.time = time
+    emitter.emit(state.events.RENDER)
   })
-  */
 
   emitter.on('graph:next', () => {
     state.active += 1

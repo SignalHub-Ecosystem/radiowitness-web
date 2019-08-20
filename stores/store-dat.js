@@ -76,7 +76,7 @@ function store (state, emitter) {
     let studio = hypercore(() => ram(), skey, { sparse : true })
 
     studio.once('error', console.error)
-    studio.once('ready', () => emitter.emit('dat:open-studio', studio))
+    //studio.once('ready', () => emitter.emit('dat:open-studio', studio))
   })
 
   const replWrtc = (archive, timer) => {
