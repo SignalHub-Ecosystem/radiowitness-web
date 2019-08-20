@@ -14,6 +14,14 @@ class Graph extends Comp {
     }
   }
 
+  sizeof (node) {
+    if (node.group) {
+      return Math.max(10, Math.floor(node.count * 25))
+    } else {
+      return Math.max(5, Math.floor(node.count * 15))
+    }
+  }
+
   afterupdate (elem) {
     console.log('!!! afterupdate')
     var margin = {top: 10, right: 30, bottom: 30, left: 40},
@@ -35,8 +43,7 @@ class Graph extends Comp {
       .enter()
       .append("circle")
         .attr("id", (d) => d.id)
-        .attr("r", 5)
-        .style("fill", "#69b3a2")
+        .attr("r", this.sizeof)
 
     let link = svg
       .selectAll("line")
@@ -45,7 +52,7 @@ class Graph extends Comp {
       .append("line")
         .style("stroke", "#aaa")
 
-    let simulation = d3.forceSimulation(this.local.nodes)
+    this.local.simulation = d3.forceSimulation(this.local.nodes)
       .force("link", d3.forceLink().links(this.local.links).id((d) => d.id))
       .force("charge", d3.forceManyBody())
       .force("x", d3.forceX())
@@ -62,13 +69,13 @@ class Graph extends Comp {
           .attr("cx", (d) => d.x)
           .attr("cy", (d) => d.y)
       })
-    this.drawActive()
+    this.colorize()
   }
 
-  drawActive () {
+  colorize () {
     this.local.svg.selectAll("circle")
-      .style("fill", "#69b3a2")
-      .filter((node) => node.id === this.local.active)
+      .style("fill", (d) => d.group ? "orange" : "blue")
+      .filter((d) => d.id === this.local.active)
       .style("fill", "red")
   }
 
@@ -76,12 +83,10 @@ class Graph extends Comp {
     if (this.local.nodes.length !== data.nodes.length ||
         this.local.links.length !== data.links.length) {
       console.log('!!! update true')
-      this.local.nodes = data.nodes.map(Object.create)
-      this.local.links = data.links.map(Object.create)
       return true
     } else if (this.local.active != active) {
       this.local.active = active
-      this.drawActive()
+      this.colorize()
     }
     console.log('!!! update false')
     return false
@@ -89,6 +94,7 @@ class Graph extends Comp {
 
   createElement (data, active) {
     console.log('!!! create')
+    if (this.local.simulation) { this.local.simulation.stop() }
     this.local.nodes = data.nodes.map(Object.create)
     this.local.links = data.links.map(Object.create)
     this.local.active = active
