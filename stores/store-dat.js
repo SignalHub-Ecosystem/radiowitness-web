@@ -65,7 +65,6 @@ function store (state, emitter) {
   state.db = { msg : 'opening...' }
   state.studio = { msg : 'opening...' }
 
-  /*
   emitter.on('DOMContentLoaded', () => {
     let dkey = dat.links.publisher[2].href.split('dat://')[1]
     let db = hyperdb(() => ram(), dkey, { sparse : true })
@@ -79,7 +78,6 @@ function store (state, emitter) {
     studio.once('error', console.error)
     studio.once('ready', () => emitter.emit('dat:open-studio', studio))
   })
-  */
 
   const replWrtc = (archive, timer) => {
     archive.msg = 'wrtc://peering...'
