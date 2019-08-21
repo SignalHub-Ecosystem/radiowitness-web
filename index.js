@@ -1,7 +1,7 @@
 const css  = require('sheetify')
 const choo = require('choo')
 
-css('tachyons')
+css('./assets/style.css')
 
 const app = choo()
 
@@ -14,7 +14,7 @@ app.use(require('./stores/store'))
 app.use(require('./stores/store-dat'))
 app.use(require('./stores/store-graph'))
 
-app.route('/', require('./views/graph'))
+app.route('/', require('./views/main'))
 app.route('/studio', require('./views/studio'))
 app.route('/*', require('./views/404'))
 

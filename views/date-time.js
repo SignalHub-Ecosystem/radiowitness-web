@@ -1,5 +1,6 @@
 const html = require('choo/html')
 const Comp = require('choo/component')
+const conf = require('../dat.json')
 
 const months = {
   january: 31,
@@ -16,7 +17,7 @@ const months = {
   december: 31
 }
 
-class TimeDateSelect extends Comp {
+class DateTimeSelect extends Comp {
   constructor (id, state, emit) {
     super(id)
     this.emit = emit
@@ -29,13 +30,15 @@ class TimeDateSelect extends Comp {
 
   select () {
     let elem = document.getElementById("select_hour")
+    let time = Date.now()
     console.log('selected ->', elem.value)
+    this.emit('time:select', time)
   }
 
   changeMonth () {
     let elem = document.getElementById("select_month")
     let time = Date.parse(`${elem.value} 1, 2019`)
-    this.emit('graph:time', time)
+    this.emit('time:ui', time)
   }
 
   update (time) {
@@ -92,4 +95,4 @@ class TimeDateSelect extends Comp {
   }
 }
 
-module.exports = TimeDateSelect
+module.exports = DateTimeSelect

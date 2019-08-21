@@ -62,8 +62,8 @@ function wss(archive) {
 }
 
 function store (state, emitter) {
-  state.db = { msg : 'opening...' }
-  state.studio = { msg : 'opening...' }
+  state.db = { msg : 'creating' }
+  state.studio = { msg : 'creating' }
 
   emitter.on('DOMContentLoaded', () => {
     let dkey = dat.links.publisher[2].href.split('dat://')[1]
@@ -80,11 +80,11 @@ function store (state, emitter) {
   })
 
   const replWrtc = (archive, timer) => {
-    archive.msg = 'wrtc://peering...'
+    archive.msg = 'attempting WebRTC connection'
     emitter.emit(state.events.RENDER)
     return wrtc(archive)
       .then(() => {
-        archive.msg = 'wrtc://querying...'
+        archive.msg = 'reading configuration'
         emitter.emit(state.events.RENDER)
         return about(archive)
       }).then(() => {
@@ -95,11 +95,11 @@ function store (state, emitter) {
   }
 
   const replWss = (archive) => {
-    archive.msg = 'wss://peering...'
+    archive.msg = 'falling back to HTTP connection'
     emitter.emit(state.events.RENDER)
     return wss(archive)
       .then(() => {
-        archive.msg = 'wss://querying...'
+        archive.msg = 'reading configuration'
         emitter.emit(state.events.RENDER)
         return about(archive)
       }).then(() => {

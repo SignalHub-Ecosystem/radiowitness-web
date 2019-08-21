@@ -2,27 +2,14 @@ const d3    = require('d3')
 const codec = require('codecs')('json')
 
 function store (state, emitter) {
-  state.time = Date.now() - (1000 * 60 * 60)
   state.active = -1
-  state.data = {
+  state.callcount = -1
+  state.d3 = {
     nodes : [],
     links : []
   }
 
-  emitter.on('graph:time', (time) => {
-    state.time = time
-    emitter.emit(state.events.RENDER)
-  })
-
-  emitter.on('graph:next', () => {
-    state.active += 1
-    state.data.nodes.push({id: 1020})
-    state.data.nodes.push({id: 1021})
-    state.data.links.push({source: 1020, target: 1021 })
-    emitter.emit(state.events.RENDER)
-  })
-
-  const mapCounts = (counts) => Object.keys(counts).map((key) => { return {id: parseInt(key), count: counts[key]}})
+  const mapCounts = (counts) => Object.keys(counts).map((key) => { return { id: parseInt(key), count: counts[key]}})
   const mapGroupCounts = (groups) => mapCounts(groups).map((g) => { g.group = true; return g })
 
   function relative (counts) {
@@ -37,6 +24,7 @@ function store (state, emitter) {
     let radios = {}
     let links = {}
     let count = 0
+    state.callcount = -1
 
     read.on('data', (data) => {
       let call = codec.decode(data[0].value)
@@ -50,18 +38,21 @@ function store (state, emitter) {
         links[key].count += 1
       }
 
-      if (count++ % 50 === 0) {
+      if (state.callcount++ % 50 === 0) {
         let nodes = relative(mapGroupCounts(groups)).concat(relative(mapCounts(radios)))
-        state.data.nodes = nodes.map(Object.create)
-        state.data.links = relative(Object.keys(links).map((k) => links[k]))
+        state.d3.nodes = nodes.map(Object.create)
+        state.d3.links = relative(Object.keys(links).map((k) => links[k]))
         emitter.emit(state.events.RENDER)
       }
+
+      emitter.emit(state.events.RENDER)
     })
 
     read.on('end', () => {
       let nodes = relative(mapGroupCounts(groups)).concat(relative(mapCounts(radios)))
-      state.data.nodes = nodes
-      state.data.links = relative(Object.keys(links).map((k) => links[k]))
+      state.d3.nodes = nodes
+      state.d3.links = relative(Object.keys(links).map((k) => links[k]))
+      state.callcount = -1
       emitter.emit(state.events.RENDER)
     })
   })
