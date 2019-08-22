@@ -1,5 +1,4 @@
 const html = require('choo/html')
-const Comp = require('choo/component')
 const D3Force = require('./d3-force.js')
 const DateTimeSelect = require('./date-time.js')
 const conf = require('../dat.json')

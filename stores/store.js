@@ -1,5 +1,10 @@
+const moment = require('moment')
+const conf = require('../dat.json')
+
+
 function store (state, emitter) {
-  state.time = Date.now() - (1000 * 60 * 60)
+  let offset = parseInt(conf.utcOffset)
+  state.time = moment().utcOffset(offset).subtract(1, 'hours')
   state.timeui = state.time
 
   emitter.on('time:ui', (time) => {

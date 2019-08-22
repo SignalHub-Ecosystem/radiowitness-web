@@ -1,5 +1,6 @@
 const html = require('choo/html')
 const Comp = require('choo/component')
+const moment = require('moment')
 const conf = require('../dat.json')
 
 const months = {
@@ -17,6 +18,8 @@ const months = {
   december: 31
 }
 
+const offset = parseInt(conf.utcOffset)
+
 class DateTimeSelect extends Comp {
   constructor (id, state, emit) {
     super(id)
@@ -29,33 +32,41 @@ class DateTimeSelect extends Comp {
   }
 
   select () {
-    let elem = document.getElementById("select_hour")
-    let time = Date.now()
-    console.log('selected ->', elem.value)
+    let month = document.getElementById('select_month').value
+    let day = document.getElementById('select_day').value
+    let hour = document.getElementById('select_hour').value
+
+    let time = moment().utcOffset(offset)
+      .month(month).date(day).hour(hour)
+      .minutes(0).seconds(0).milliseconds(0)
+
+    console.log('selected ->', hour, time.toString())
     this.emit('time:select', time)
   }
 
   changeMonth () {
-    let elem = document.getElementById("select_month")
-    let time = Date.parse(`${elem.value} 1, 2019`)
+    let month = document.getElementById('select_month').value
+    let time = moment().utcOffset(offset)
+      .month(month).date(1).hour(0)
+      .minutes(0).seconds(0).milliseconds(0)
     this.emit('time:ui', time)
   }
 
   update (time) {
-    return time !== this.local.time
+    return !time.isSame(this.local.time)
   }
 
   createElement (time) {
     this.local.time = time
 
-    let selectedMonth = new Date(time).getMonth()
+    let selectedMonth = time.month()
     let optionsMonth = Object.keys(months).map((month, idx) => {
-      let cap = month.charAt(0).toUpperCase() + month.slice(1)
-      return selectedMonth === idx ? html`<option value=${month} selected="selected">${cap}</option>` :
-        html`<option value=${month}>${cap}</option>`
+      let capitalized = month.charAt(0).toUpperCase() + month.slice(1)
+      return selectedMonth === idx ? html`<option value=${idx} selected="selected">${capitalized}</option>` :
+        html`<option value=${idx}>${capitalized}</option>`
     })
 
-    let selectedDay = new Date(time).getDate()
+    let selectedDay = time.date()
     let optionsDay = []
     let days = months[Object.keys(months)[selectedMonth]]
     for (var i = 1; i <= days; i++) {
@@ -66,11 +77,17 @@ class DateTimeSelect extends Comp {
       }
     }
 
-    let selectedHour = new Date(time).getHours() + 1
+    let selectedHour = time.hour()
     let optionsHour = []
-    for (var i = 1; i <= 24; i++) {
-      let hour = i <= 12 ? i : i - 12
-      let postfix = i <= 12 ? "AM" : "PM"
+    for (var i = 0; i < 24; i++) {
+      let hour = i
+      if (hour === 0) {
+        hour = 12
+      } else if (hour > 12) {
+        hour = hour - 12
+      }
+
+      let postfix = i < 12 ? "AM" : "PM"
       if (i === selectedHour) {
         optionsHour.push(html`<option value=${i} selected="selected">${hour+postfix}</option>`)
       } else {
