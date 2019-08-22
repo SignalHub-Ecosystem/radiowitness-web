@@ -16,7 +16,11 @@ function store (state, emitter) {
     state.time = time
     emitter.emit(state.events.RENDER)
   })
-  
+
+  // kick off first graph render
+  emitter.on('dat:ready-db', () => {
+    emitter.emit('time:select', state.time)
+  })
 }
 
 module.exports = store

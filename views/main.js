@@ -22,7 +22,6 @@ function view (state, emit) {
     <div class="app">
       <h2>${conf.title}</h2>
       ${status}
-      <p>studio: ${state.studio.msg}...</p>
       ${state.cache(DateTimeSelect, 'time').render(state.timeui)}
       ${state.cache(D3Force, 'd3force').render(state.d3, state.active)}
     </div>

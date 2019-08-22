@@ -4,6 +4,7 @@ const codec = require('codecs')('json')
 function store (state, emitter) {
   state.active = -1
   state.callcount = -1
+  state.reading = undefined
   state.d3 = {
     nodes : [],
     links : []
@@ -17,16 +18,18 @@ function store (state, emitter) {
     return counts.map((c) => { c.count = c.count/max; return c })
   }
 
-  emitter.on('dat:ready-db', () => {
-    let hour = Math.floor(Date.now() / 1000.0 / 60 / 60)
-    let read = state.db.createReadStream(`/calls/${hour - 1}/`, { gt : true })
+  emitter.on('time:select', (time) => {
+    if (state.reading) { state.reading.destroy() }
+
     let groups = {}
     let radios = {}
     let links = {}
     let count = 0
+    let hour = Math.floor(time.valueOf() / 1000.0 / 60 / 60)
+    state.reading = state.db.createReadStream(`/calls/${hour - 1}/`, { gt : true })
     state.callcount = -1
 
-    read.on('data', (data) => {
+    state.reading.on('data', (data) => {
       let call = codec.decode(data[0].value)
       groups[call.group] = groups[call.group] ? groups[call.group] + 1 : 1
       radios[call.source] = radios[call.source] ? radios[call.source] + 1 : 1
@@ -48,11 +51,12 @@ function store (state, emitter) {
       emitter.emit(state.events.RENDER)
     })
 
-    read.on('end', () => {
+    state.reading.on('end', () => {
       let nodes = relative(mapGroupCounts(groups)).concat(relative(mapCounts(radios)))
       state.d3.nodes = nodes
       state.d3.links = relative(Object.keys(links).map((k) => links[k]))
       state.callcount = -1
+      state.reading = undefined
       emitter.emit(state.events.RENDER)
     })
   })

@@ -23,7 +23,6 @@ class Graph extends Comp {
   }
 
   afterupdate (elem) {
-    console.log('!!! afterupdate')
     var margin = {top: 10, right: 30, bottom: 30, left: 40},
       width = 800 - margin.left - margin.right,
       height = 800 - margin.top - margin.bottom;
@@ -83,18 +82,15 @@ class Graph extends Comp {
   update (data, active) {
     if (this.local.nodes.length !== data.nodes.length ||
         this.local.links.length !== data.links.length) {
-      console.log('!!! update true')
       return true
     } else if (this.local.active != active) {
       this.local.active = active
       this.colorize()
     }
-    console.log('!!! update false')
     return false
   }
 
   createElement (data, active) {
-    console.log('!!! create')
     if (this.local.simulation) { this.local.simulation.stop() }
     this.local.nodes = data.nodes.map(Object.create)
     this.local.links = data.links.map(Object.create)
